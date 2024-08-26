@@ -7,7 +7,7 @@ from .base import Base
 class Shipment(Base):
     __tablename__ = 'shipments'
 
-    shipment_id = Column(Integer, primary_key=True, autoincrement=True)
+    shipment_id = Column(Integer, primary_key=True)
     container_number = Column(String(30), nullable=True)
     master_bol_number = Column(String(30), nullable=True)
     house_bol_number = Column(String(30), nullable=True)
@@ -19,11 +19,11 @@ class Shipment(Base):
     error = Column(Text, nullable=True)
     scrape_status = Column(Enum(ScrapeStatus),
                            default=ScrapeStatus.ASSIGNED, nullable=False)
-    updated_at = Column(DateTime, nullable=True)
-    submitted_at = Column(DateTime, nullable=True)
-    frequency = Column(Integer, nullable=True)
+    submitted_at = Column(DateTime, nullable=True,)
+    frequency = Column(Integer, nullable=True, default=4)
     last_scraped_time = Column(DateTime, nullable=True)
     next_scrape_time = Column(DateTime, nullable=True)
+    start_scrape_time = Column(DateTime, nullable=True)
 
     def __repr__(self):
         return f"<Shipment(shipment_id={self.shipment_id}, container_number='{self.container_number}', status='{self.status}', scrape_status='{self.scrape_status.value}')>"

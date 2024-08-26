@@ -2,3 +2,4 @@ wheel
 sqlalchemy
 pandas
 pydantic
+fastapi
