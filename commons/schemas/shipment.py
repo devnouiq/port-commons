@@ -23,7 +23,7 @@ class Shipment(Base):
     submitted_at = Column(DateTime, nullable=True)
     frequency = Column(Integer, nullable=True)
     last_scraped_time = Column(DateTime, nullable=True)
-    next_scrape_time = Column(DateTime, nullable=True)`
+    next_scrape_time = Column(DateTime, nullable=True)
 
     def __repr__(self):
         return f"<Shipment(shipment_id={self.shipment_id}, container_number='{self.container_number}', status='{self.status}', scrape_status='{self.scrape_status.value}')>"
