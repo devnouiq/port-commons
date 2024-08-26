@@ -1,0 +1,25 @@
+
+from sqlalchemy import Column, Integer, DateTime, String
+
+from datetime import datetime, timezone
+from .base import Base
+
+
+class ContainerAvailability(Base):
+    __tablename__ = "container_status_table"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    date = Column(DateTime, nullable=False)
+    port = Column(String, nullable=False)
+    terminal = Column(String, nullable=False, default='NYCT')
+    container_number = Column(String, nullable=False, unique=True)
+    available = Column(String, nullable=False)
+    usda_status = Column(String, nullable=True)
+    last_free_date = Column(String, nullable=True)
+    location = Column(String, nullable=True)
+    custom_release_status = Column(String, nullable=True)
+    carrier_release_status = Column(String, nullable=True)
+    demurrage_amount = Column(String, nullable=True)
+    yard_terminal_release_status = Column(String, nullable=True, default='N/A')
+    last_updated_availability = Column(
+        DateTime, nullable=False, default=datetime.now(timezone.utc))
