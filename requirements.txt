@@ -4,3 +4,4 @@ pandas
 pydantic
 fastapi
 loguru
+psycopg2-binary
