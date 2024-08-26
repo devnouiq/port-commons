@@ -11,14 +11,11 @@ class Logger:
             if scraper_name is None:
                 raise ValueError(
                     "Logger needs a scraper name for the first initialization.")
-
             cls._instance = super(Logger, cls).__new__(cls)
             cls._instance.scraper_name = scraper_name
-            cls._instance.run_id = uuid.uuid4()  # Generate a unique GUID for each run
-            cls._instance.start_time = datetime.utcnow(
-            ).isoformat()  # Record the start time in UTC
+            cls._instance.run_id = uuid.uuid4()
+            cls._instance.start_time = datetime.utcnow().isoformat()
 
-            # Customize logger format to include scraper name, run ID, and time
             loguru_logger.remove()
             loguru_logger.add(lambda msg: print(msg, end=''),
                               format=cls._log_format(cls._instance))
@@ -37,11 +34,7 @@ class Logger:
 
 
 def get_logger(scraper_name: str = None):
-    """
-    Returns the singleton instance of the Logger class,
-    which is actually the loguru logger with custom settings.
-
-    :param scraper_name: The name of the scraper for the initial logger creation.
-    :return: The loguru logger instance with custom formatting.
-    """
+    if Logger._instance is None and scraper_name is None:
+        raise ValueError(
+            "Logger needs a scraper name for the first initialization.")
     return Logger(scraper_name=scraper_name)
