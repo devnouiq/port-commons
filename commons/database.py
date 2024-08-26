@@ -7,12 +7,24 @@ from .enums import Scraper
 import os
 from commons.utils.logger import get_logger
 
-
 logger = get_logger()
 
 # Create engines and sessions
 engine = create_engine(os.getenv("DATABASE_URL"))
 SessionLocal = sessionmaker(bind=engine)
+
+
+def get_session():
+    """Provide a transactional scope around a series of operations."""
+    session = SessionLocal()
+    try:
+        yield session
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise e
+    finally:
+        session.close()
 
 
 def create_tables():
