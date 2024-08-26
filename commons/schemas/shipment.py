@@ -3,8 +3,7 @@ from sqlalchemy import Column, Integer, String, Text, DateTime, Enum
 from commons.enums import ScrapeStatus
 from .base import Base
 
-`
-# Define the Shipment model with scrape_status using SQLAlchemy's Enum
+
 class Shipment(Base):
     __tablename__ = 'shipments'
 
