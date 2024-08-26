@@ -1,37 +1,23 @@
-import json
 from typing import Dict
 from ..models.containers import ContainerDataModel
 
 
 class ContainerDataFactory:
-    def __init__(self, mapping_file: str = "mappings.json"):
-        # Load the mapping configuration from the JSON file
-        self.mapping_config = self._load_mappings(mapping_file)
+    def __init__(self, mapping_config: Dict[str, str]):
+        """
+        Initialize the factory with the mapping configuration.
+        :param mapping_config: A dictionary containing the mapping configuration.
+        """
+        self.mapping_config = mapping_config
 
-    @staticmethod
-    def _load_mappings(mapping_file: str) -> Dict[str, Dict[str, str]]:
+    def create_container_data(self, row: Dict[str, str]) -> ContainerDataModel:
         """
-        Load the mappings from the specified JSON file.
+        Create a ContainerDataModel instance based on the provided data row.
+        :param row: A dictionary representing a row of data from the scraper.
+        :return: A ContainerDataModel instance.
         """
-        try:
-            with open(mapping_file, 'r') as f:
-                return json.load(f).get("scrapers", {})
-        except FileNotFoundError:
-            raise ValueError(f"Mapping file {mapping_file} not found.")
-        except json.JSONDecodeError as e:
-            raise ValueError(
-                f"Error decoding JSON from {mapping_file}: {str(e)}")
-
-    def create_container_data(self, scraper_name: str, row: Dict[str, str]) -> ContainerDataModel:
-        """
-        Create a ContainerDataModel instance based on the scraper name and data row.
-        """
-        mapping = self.mapping_config.get(scraper_name)
-        if not mapping:
-            raise ValueError(f"No mapping found for scraper: {scraper_name}")
-
         data = {
             model_field: row.get(raw_field)
-            for model_field, raw_field in mapping.items()
+            for model_field, raw_field in self.mapping_config.items()
         }
         return ContainerDataModel(**data)
