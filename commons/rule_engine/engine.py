@@ -1,20 +1,17 @@
-from fastapi import HTTPException
-from typing import Any, Dict
-from base import Rule
+from abc import ABC, abstractmethod
+from typing import Dict, Any
+
+
+class BusinessRule(ABC):
+    @abstractmethod
+    def apply(self, context: Dict[str, Any]) -> None:
+        pass
 
 
 class BusinessRuleEngine:
-    def __init__(self, rules: list[Rule]):
+    def __init__(self, rules: list[BusinessRule]):
         self.rules = rules
 
     def apply_rules(self, context: Dict[str, Any]) -> None:
         for rule in self.rules:
             rule.apply(context)
-
-
-def apply_business_rules(context: Dict[str, Any], rules: list[Rule]):
-    rule_engine = BusinessRuleEngine(rules)
-    try:
-        rule_engine.apply_rules(context)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
