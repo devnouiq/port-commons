@@ -1,0 +1,24 @@
+{
+    "scrapers": {
+        "APM": {
+            "date": "Date",
+            "port": "Port",
+            "terminal": "Terminal",
+            "container_number": "Container #",
+            "available": "Available",
+            "last_free_date": "LastFreeDate",
+            "location": "Location",
+            "custom_release_status": "Customs"
+        },
+        "scraper2": {
+            "date": "ScrapeDate",
+            "port": "PortCode",
+            "terminal": "TerminalName",
+            "container_number": "ContainerID",
+            "available": "IsAvailable",
+            "last_free_date": "FreeDate",
+            "location": "ContainerLocation",
+            "custom_release_status": "CustomStatus"
+        }
+    }
+}
