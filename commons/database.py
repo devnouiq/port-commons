@@ -75,3 +75,5 @@ def initialize_data():
             session.rollback()
             logger.error(f"Error inserting initial data: {e}")
             raise
+
+create_tables()
