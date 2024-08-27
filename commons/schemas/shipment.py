@@ -2,6 +2,8 @@ from sqlalchemy import Column, Integer, String, DateTime, Text, Enum, ForeignKey
 from sqlalchemy.orm import relationship
 from commons.enums import ScrapeStatus
 from commons.database import Base
+# Import the related class
+from commons.schemas.container import ContainerAvailability
 
 
 class Shipment(Base):

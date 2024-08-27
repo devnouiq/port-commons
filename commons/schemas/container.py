@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from commons.database import Base
 from sqlalchemy.sql import func
+from commons.schemas.shipment import Shipment  # Import the related class
 
 
 class ContainerAvailability(Base):
