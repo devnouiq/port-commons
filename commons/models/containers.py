@@ -17,4 +17,4 @@ class ContainerDataModel(BaseModel):
     demurrage_amount: Optional[str] = None
     yard_terminal_release_status: Optional[str] = None
     last_updated_availability: str = Field(
-        default_factory=lambda: get_current_datetime_in_est()
+        default_factory=lambda: get_current_datetime_in_est())
