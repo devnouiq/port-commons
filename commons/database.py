@@ -76,4 +76,5 @@ def initialize_data():
             logger.error(f"Error inserting initial data: {e}")
             raise
 
+
 create_tables()
