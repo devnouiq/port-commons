@@ -44,7 +44,6 @@ class Shipment(Base):
     vessel_name = Column(String(25), nullable=True)
     voyage_id = Column(Integer, nullable=True)
     terminal_id = Column(String(10), nullable=True)
-    status = Column(String(20), nullable=True)
     error = Column(Text, nullable=True)
     scrape_status = Column(Enum(ScrapeStatus),
                            default=ScrapeStatus.ASSIGNED.name, nullable=False)
