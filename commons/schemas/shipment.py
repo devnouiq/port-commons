@@ -1,7 +1,7 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, Enum
-
+from sqlalchemy import Column, Integer, String, DateTime, Text, Enum, ForeignKey
+from sqlalchemy.orm import relationship
 from commons.enums import ScrapeStatus
-from .base import Base
+from commons.database import Base
 
 
 class Shipment(Base):
@@ -19,11 +19,18 @@ class Shipment(Base):
     error = Column(Text, nullable=True)
     scrape_status = Column(Enum(ScrapeStatus),
                            default=ScrapeStatus.ASSIGNED, nullable=False)
-    submitted_at = Column(DateTime, nullable=True,)
+    submitted_at = Column(DateTime, nullable=True)
     frequency = Column(Integer, nullable=True, default=4)
     last_scraped_time = Column(DateTime, nullable=True)
     next_scrape_time = Column(DateTime, nullable=True)
     start_scrape_time = Column(DateTime, nullable=True)
 
+    # Establish relationship with ContainerAvailability
+    containers = relationship("ContainerAvailability",
+                              back_populates="shipment")
+
     def __repr__(self):
-        return f"<Shipment(shipment_id={self.shipment_id}, container_number='{self.container_number}', status='{self.status}', scrape_status='{self.scrape_status.value}')>"
+        return (f"<Shipment(shipment_id={self.shipment_id}, "
+                f"container_number='{self.container_number}', "
+                f"status='{self.status}', "
+                f"scrape_status='{self.scrape_status.value}')>")
