@@ -6,7 +6,7 @@ with open('requirements.txt') as f:
 
 setup(
     name="port-commons",
-    version="0.9.6",
+    version="0.9.7",
     packages=find_packages(),
     install_requires=required,  # Use the list of requirements
     include_package_data=True,

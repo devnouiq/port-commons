@@ -15,6 +15,7 @@ class BaseRepository:
     def save(self, entity: Any):
         try:
             self.session.add(entity)
+            self.session.commit()  # Commit after save
         except SQLAlchemyError as e:
             raise ValueError(f"Failed to save entity: {str(e)}")
 
