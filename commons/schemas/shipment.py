@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, DateTime, Text, Enum, ForeignKey
 from sqlalchemy.orm import relationship
 from commons.enums import ScrapeStatus
 from commons.database import Base
+from sqlalchemy.sql import func
 
 
 class ContainerAvailability(Base):

@@ -34,6 +34,7 @@ def create_tables():
     """Create tables if they do not exist."""
     try:
         Base.metadata.create_all(engine)
+        initialize_data()
         logger.info("Tables created successfully.")
     except SQLAlchemyError as e:
         logger.error(f"Error creating tables: {e}")
