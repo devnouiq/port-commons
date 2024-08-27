@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from commons.database import Base
+from sqlalchemy.sql import func
 
 
 class ContainerAvailability(Base):
