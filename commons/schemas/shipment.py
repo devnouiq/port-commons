@@ -46,7 +46,7 @@ class Shipment(Base):
     terminal_id = Column(String(10), nullable=True)
     status = Column(String(20), nullable=True)
     error = Column(Text, nullable=True)
-    scrape_status = Column(Enum(ScrapeStatus.name),
+    scrape_status = Column(Enum(ScrapeStatus),
                            default=ScrapeStatus.ASSIGNED.name, nullable=False)
     submitted_at = Column(DateTime, nullable=True)
     frequency = Column(Integer, nullable=True, default=4)
