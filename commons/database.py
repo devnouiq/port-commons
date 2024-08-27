@@ -4,7 +4,6 @@ from sqlalchemy.exc import SQLAlchemyError
 from commons.schemas.base import Base
 import os
 from commons.utils.logger import get_logger
-from contextlib import contextmanager
 from .scraper_metadata import ScraperMetadata
 from .enums import Scraper
 
@@ -15,7 +14,6 @@ engine = create_engine(os.getenv("DATABASE_URL"))
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
-@contextmanager
 def get_session():
     """Provide a transactional scope around a series of operations."""
     session = SessionLocal()
