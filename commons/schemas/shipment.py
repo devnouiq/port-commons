@@ -25,7 +25,7 @@ class Shipment(Base):
     next_scrape_time = Column(DateTime, nullable=True)
     start_scrape_time = Column(DateTime, nullable=True)
 
-    # Establish relationship with ContainerAvailability
+    # Use string reference here
     containers = relationship("ContainerAvailability",
                               back_populates="shipment")
 

@@ -23,7 +23,7 @@ class ContainerAvailability(Base):
     last_updated_availability = Column(
         DateTime, nullable=False, default=func.current_timestamp())
 
-    # Establish relationship with Shipment
+    # Use string reference here
     shipment = relationship("Shipment", back_populates="containers")
 
     def __repr__(self):
