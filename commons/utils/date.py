@@ -3,7 +3,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 
-def get_datetime_in_est(dt: datetime = None) -> str:
+def get_current_datetime_in_est(dt: datetime = None) -> str:
     """
     Convert a datetime to ISO 8601 format in the America/New_York timezone,
     truncated to seconds (no microseconds).
