@@ -1,5 +1,5 @@
 from typing import Dict
-from ..models.containers import ContainerDataModel
+from ..schemas.shipment import ContainerAvailability
 
 
 class ContainerDataFactory:
@@ -10,14 +10,22 @@ class ContainerDataFactory:
         """
         self.mapping_config = mapping_config
 
-    def create_container_data(self, row: Dict[str, str]) -> ContainerDataModel:
+    def create_container_data(self, row: Dict[str, str], shipment_id: int) -> ContainerAvailability:
         """
-        Create a ContainerDataModel instance based on the provided data row.
+        Create a ContainerAvailability instance based on the provided data row.
         :param row: A dictionary representing a row of data from the scraper.
-        :return: A ContainerDataModel instance.
+        :param shipment_id: The ID of the shipment associated with this container.
+        :return: A ContainerAvailability instance.
         """
-        data = {
-            model_field: row.get(raw_field)
-            for model_field, raw_field in self.mapping_config.items()
+        # Map the data from the JSON using the mapping configuration
+        mapped_data = {
+            field: row.get(source_field)
+            for field, source_field in self.mapping_config.items()
         }
-        return ContainerDataModel(**data)
+
+        # Create and return the ContainerAvailability object
+        container_availability = ContainerAvailability(
+            shipment_id=shipment_id,
+            **mapped_data
+        )
+        return container_availability
