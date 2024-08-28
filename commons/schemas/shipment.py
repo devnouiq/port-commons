@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, Text, Enum, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from commons.enums import ScrapeStatus
 from .base import Base
+from commons.utils.date import get_current_datetime_in_est
 
 
 class ContainerAvailability(Base):
