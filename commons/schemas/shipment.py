@@ -20,7 +20,9 @@ class ContainerAvailability(Base):
     custom_release_status = Column(String, nullable=True)
     carrier_release_status = Column(String, nullable=True)
     demurrage_amount = Column(String, nullable=True)
+    vessel_name = Column(String(25), nullable=True)
     yard_terminal_release_status = Column(String, nullable=True)
+    last_free_date: Column[str] = None
     last_updated_availability = Column(
         DateTime, nullable=False, default=get_current_datetime_in_est)  # Store as DateTime
 
@@ -40,7 +42,6 @@ class Shipment(Base):
     master_bol_number = Column(String(30), nullable=True)
     house_bol_number = Column(String(30), nullable=True)
     run_date = Column(DateTime, nullable=True)  # Store as DateTime
-    vessel_name = Column(String(25), nullable=True)
     voyage_id = Column(Integer, nullable=True)
     terminal_id = Column(String(10), nullable=True)
     error = Column(Text, nullable=True)
