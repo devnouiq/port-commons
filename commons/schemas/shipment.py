@@ -1,30 +1,32 @@
-from sqlalchemy import Column, Integer, String, Text, Enum, ForeignKey, DateTime
+
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, PrimaryKeyConstraint, Text, Enum
 from sqlalchemy.orm import relationship
-from commons.enums import ScrapeStatus
 from .base import Base
 from commons.utils.date import get_current_datetime_in_est
+from commons.enums import ScrapeStatus
 
 
 class ContainerAvailability(Base):
     __tablename__ = "container_status_table"
-    id = Column(Integer, autoincrement=True, primary_key=True)
-    shipment_id = Column(Integer, ForeignKey("shipments.shipment_id"))
-    date = Column(DateTime, nullable=True)  # Store as DateTime
+
+    shipment_id = Column(Integer, ForeignKey(
+        "shipments.shipment_id"), nullable=False)
+    container_number = Column(String, nullable=False)
+
+    date = Column(String, nullable=True)
     port = Column(String, nullable=False)
     terminal = Column(String, nullable=False)
-    container_number = Column(String, nullable=False, unique=True)
     available = Column(String, nullable=False)
     usda_status = Column(String, nullable=True)
-    last_free_date = Column(DateTime, nullable=True)  # Store as DateTime
+    last_free_date = Column(String, nullable=True)
     location = Column(String, nullable=True)
     custom_release_status = Column(String, nullable=True)
     carrier_release_status = Column(String, nullable=True)
     demurrage_amount = Column(String, nullable=True)
     vessel_name = Column(String(25), nullable=True)
     yard_terminal_release_status = Column(String, nullable=True)
-    last_free_date = Column(String, nullable=True)
     last_updated_availability = Column(
-        DateTime, nullable=False, default=get_current_datetime_in_est)  # Store as DateTime
+        String, nullable=False)
 
     shipment = relationship("Shipment", back_populates="containers")
 
@@ -32,6 +34,11 @@ class ContainerAvailability(Base):
         return (f"<ContainerAvailability(container_number='{self.container_number}', "
                 f"available='{self.available}', "
                 f"last_updated_availability='{self.last_updated_availability}')>")
+
+    # Define composite primary key
+    __table_args__ = (
+        PrimaryKeyConstraint('shipment_id', 'container_number'),
+    )
 
 
 class Shipment(Base):
