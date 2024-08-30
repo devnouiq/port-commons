@@ -7,7 +7,7 @@ from commons.utils.date import get_current_datetime_in_est
 
 class ContainerAvailability(Base):
     __tablename__ = "container_status_table"
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(Integer, autoincrement=True, primary_key=True, nullable=True)
     shipment_id = Column(Integer, ForeignKey("shipments.shipment_id"))
     date = Column(DateTime, nullable=True)  # Store as DateTime
     port = Column(String, nullable=False)
