@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
-from typing import Any, Dict
+from typing import Any
 from commons.enums import ScrapeStatus
 from commons.utils.date import get_current_datetime_in_est
 from commons.utils.logger import get_logger

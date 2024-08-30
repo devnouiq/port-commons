@@ -24,7 +24,7 @@ class HandleMissingContainerRule(BusinessRule):
                 existing_record = repository.get_by_container_number_and_shipment_id(
                     container_number, shipment_id
                 )
-                if existing_record:
+                if existing_record and existing_record.scrape_status == ScrapeStatus.ACTIVE:
                     existing_record.scrape_status = ScrapeStatus.STOPPED
                     existing_record.next_scrape_time = None
                     repository.save_or_update(
