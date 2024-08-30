@@ -23,9 +23,7 @@ class ShipmentService:
         """
         shipment = context.get('shipment')
 
-        # Mark the shipment as IN_PROGRESS
-        shipment.scrape_status = ScrapeStatus.IN_PROGRESS
-        shipment.last_scraped_time = get_current_datetime_in_est()
+        rules.append(SetInProgressStatusRule())
 
         # Apply any provided rules
         if rules:
@@ -64,9 +62,7 @@ class ShipmentService:
         existing_container = context.get('container')
         container_availability = context.get('container_availability')
 
-        # Mark the shipment as ACTIVE
-        shipment.scrape_status = ScrapeStatus.ACTIVE
-        shipment.last_scraped_time = get_current_datetime_in_est()
+        rules.append(SetActiveStatusRule())
 
         # Apply any provided rules
         if rules:
