@@ -2,11 +2,14 @@ from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 from alembic import context
 import os
+from alembic import op
+import sqlalchemy as sa
 
 # Import the base model and all your models
 from commons.schemas.base import Base
 from commons.schemas.shipment import Shipment
 from commons.schemas.shipment import ContainerAvailability
+from commons.schemas.scraper import ScraperMetadata
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

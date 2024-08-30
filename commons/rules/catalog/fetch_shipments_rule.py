@@ -5,6 +5,9 @@ from commons.utils.date import get_current_datetime_in_est
 from sqlalchemy import func, or_
 from commons.schemas.shipment import Shipment
 from typing import Dict, Any
+from commons.utils.logger import get_logger
+
+logger = get_logger()
 
 
 class FetchShipmentsRule(BusinessRule):
@@ -26,7 +29,10 @@ class FetchShipmentsRule(BusinessRule):
 
         # Check if a specific shipment ID is provided in the environment variable
         shipment_id = os.getenv("SHIPMENT_ID")
+
         if shipment_id:
+            logger.info(
+                F"Fetching shipment with ID {shipment_id} for trigger use case")
             # Fetch only the specific shipment if shipment_id is provided
             shipment = session.query(Shipment).filter(
                 Shipment.terminal_id == terminal_id,
