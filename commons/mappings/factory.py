@@ -19,7 +19,8 @@ class ContainerDataFactory:
         """
         # Map the data from the JSON using the mapping configuration
         mapped_data = {
-            field: row.get(source_field)
+            field: str(row.get(source_field)) if isinstance(
+                row.get(source_field), bool) else row.get(source_field)
             for field, source_field in self.mapping_config.items()
         }
 
