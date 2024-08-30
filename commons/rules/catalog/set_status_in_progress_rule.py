@@ -4,27 +4,26 @@ from commons.enums import ScrapeStatus
 from commons.utils.date import get_current_datetime_in_est
 from commons.utils.logger import get_logger
 from datetime import timedelta
-
 logger = get_logger()
 
 
-class SetActiveStatusRule(BusinessRule):
+class SetInProgressStatusRule(BusinessRule):
     def apply(self, context: Dict[str, Any]) -> None:
         """
-        If the shipment's status is ACTIVE, update the next_scrape_time
-        to be the current time plus the shipment's frequency in hours.
+        If the shipment's status is set to IN_PROGRESS, update the last_scraped_time.
         """
         shipment = context.get("shipment")
-        if shipment and shipment.scrape_status == ScrapeStatus.ACTIVE:
+        if shipment:
             logger.info(
-                f"Setting next_scrape_time for shipment ID {shipment.shipment_id}")
+                f"Setting status to IN_PROGRESS and updating last_scraped_time for shipment ID {shipment.shipment_id}")
 
             current_time = get_current_datetime_in_est()
             next_scrape_time = current_time + \
                 timedelta(hours=shipment.frequency)
 
-            shipment.last_scrape_time = current_time
+            shipment.scrape_status = ScrapeStatus.IN_PROGRESS
+            shipment.last_scraped_time = get_current_datetime_in_est()
             shipment.next_scrape_time = next_scrape_time
 
             logger.info(
-                f"Next scrape time set to {shipment.next_scrape_time} for shipment ID {shipment.shipment_id}")
+                f"Shipment ID {shipment.shipment_id} status set to IN_PROGRESS and last_scraped_time updated to {shipment.last_scraped_time}")
