@@ -31,10 +31,14 @@ class ContainerDataFactory:
             rule_instance = rule_class(json_data=row, mapped_data=mapped_data)
             rule_instance.process()
 
-        # Step 3: Create and return the ContainerAvailability object with the final mapped data
+        # Step 3: Filter the mapped_data to only include fields relevant to ContainerAvailability
+        relevant_data = {field: value for field, value in mapped_data.items(
+        ) if hasattr(ContainerAvailability, field)}
+
+        # Step 4: Create and return the ContainerAvailability object with the relevant mapped data
         container_availability = ContainerAvailability(
             shipment_id=shipment_id,
-            **mapped_data
+            **relevant_data
         )
 
         return container_availability

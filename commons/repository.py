@@ -19,7 +19,7 @@ class BaseRepository:
         except SQLAlchemyError as e:
             self.session.rollback()
             logger.error(f"Error saving entity: {str(e)}", exc_info=True)
-            raise ValueError(f"Failed to save entity: {str(e)}")
+            raise
 
     def update(self, entity: Any, updates: Any):
         try:
@@ -31,7 +31,7 @@ class BaseRepository:
         except SQLAlchemyError as e:
             self.session.rollback()
             logger.error(f"Error updating entity: {str(e)}", exc_info=True)
-            raise ValueError(f"Failed to update entity: {str(e)}")
+            raise
 
     def save_or_update(self, entity: Any, unique_field: str, unique_value: Any):
         try:
@@ -45,7 +45,7 @@ class BaseRepository:
             self.session.rollback()
             logger.error(
                 f"Error saving or updating entity: {str(e)}", exc_info=True)
-            raise ValueError(f"Failed to save or update entity: {str(e)}")
+            raise
 
     def delete(self, entity: Any):
         try:
@@ -64,7 +64,7 @@ class BaseRepository:
             logger.error(
                 f"Error fetching entity by ID: {str(e)}", exc_info=True)
             self.session.rollback()
-            raise ValueError(f"Failed to get entity by ID: {str(e)}")
+            raise
 
     def get_by_fields(self, **kwargs) -> Any:
         try:
@@ -74,7 +74,7 @@ class BaseRepository:
             logger.error(
                 f"Error fetching entity by fields: {str(e)}", exc_info=True)
             self.session.rollback()
-            raise ValueError(f"Failed to get entity by fields: {str(e)}")
+            raise
 
     def get_by_container_number_and_shipment_id(self, container_number: str, shipment_id: int) -> Any:
         try:
@@ -85,5 +85,4 @@ class BaseRepository:
             logger.error(
                 f"Error fetching entity by container_number and shipment_id: {str(e)}", exc_info=True)
             self.session.rollback()
-            raise ValueError(
-                f"Failed to get entity by container_number and shipment_id: {str(e)}")
+            raise
