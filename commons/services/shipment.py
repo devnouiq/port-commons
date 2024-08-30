@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 logger = get_logger()
 
 
-class ShipmentAvailabilityService:
+class ShipmentService:
     def __init__(self, session: Session, shipment_repo: BaseRepository, container_repo: BaseRepository, rules: list):
         self.session = session
         self.shipment_repo = shipment_repo
@@ -31,11 +31,14 @@ class ShipmentAvailabilityService:
         """
         # Apply rules to shipment and container availability
         for rule in self.rules:
-            rule.apply({"shipment": shipment, "container_availability": container_availability})
+            rule.apply(
+                {"shipment": shipment, "container_availability": container_availability})
 
         # Save or update the shipment
-        self.shipment_repo.save_or_update(shipment, "shipment_id", shipment.shipment_id)
+        self.shipment_repo.save_or_update(
+            shipment, "shipment_id", shipment.shipment_id)
 
         # Save or update the ContainerAvailability
         container_availability.shipment_id = shipment.shipment_id
-        self.container_repo.save_or_update(container_availability, "container_number", container_availability.container_number)
+        self.container_repo.save_or_update(
+            container_availability, "container_number", container_availability.container_number)

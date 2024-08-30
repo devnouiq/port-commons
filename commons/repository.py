@@ -1,6 +1,8 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
-from typing import Any, Dict, List
+from typing import Any, Dict
+from commons.enums import ScrapeStatus
+from commons.utils.date import get_current_datetime_in_est
 from commons.utils.logger import get_logger
 
 logger = get_logger()
@@ -65,17 +67,12 @@ class BaseRepository:
             raise ValueError(
                 f"Failed to get entity by container number and shipment ID: {str(e)}")
 
-    def handle_missing_container(self, container_number: str, shipment_id: int):
-        try:
-            existing_record = self.get_by_container_number_and_shipment_id(
-                container_number, shipment_id)
-            if existing_record:
-                existing_record.scrape_status = ScrapeStatus.STOPPED
-                existing_record.next_scrape_time = None
-                self.save_or_update(
-                    existing_record, 'shipment_id', shipment_id)
-            else:
-                raise ValueError(
-                    f"No existing record found for container {container_number} and shipment {shipment_id}")
-        except SQLAlchemyError as e:
-            raise ValueError(f"Failed to handle missing container: {str(e)}")
+    def prepare_and_update_status(self, entity_id: int, status: ScrapeStatus, error_message: str = None):
+        updates = self.model(
+            scrape_status=status,
+            last_scraped_time=get_current_datetime_in_est(),
+            next_scrape_time=get_current_datetime_in_est(
+            ) if status == ScrapeStatus.ACTIVE else None,
+            error=error_message if status == ScrapeStatus.FAILED else None
+        )
+        self.save_or_update(updates, 'shipment_id', entity_id)
