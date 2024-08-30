@@ -1,14 +1,18 @@
 from typing import Dict
 from ..schemas.shipment import ContainerAvailability
+from typing import List
+from ..rules.engine import BusinessRule
 
 
 class ContainerDataFactory:
-    def __init__(self, mapping_config: Dict[str, str]):
+    def __init__(self, mapping_config: Dict[str, str], rules: List[BusinessRule] = None):
         """
-        Initialize the factory with the mapping configuration.
+        Initialize the factory with the mapping configuration and custom rules.
         :param mapping_config: A dictionary containing the mapping configuration.
+        :param rules: A list of rules to apply for computing complex values.
         """
         self.mapping_config = mapping_config
+        self.rules = rules or []
 
     def create_container_data(self, row: Dict[str, str], shipment_id: int) -> ContainerAvailability:
         """
@@ -22,6 +26,10 @@ class ContainerDataFactory:
             field: row.get(source_field)
             for field, source_field in self.mapping_config.items()
         }
+
+        # Apply the custom rules to compute or override values and send mapped data
+        for rule in self.rules:
+            rule.apply(row, mapped_data)
 
         # Create and return the ContainerAvailability object
         container_availability = ContainerAvailability(

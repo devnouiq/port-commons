@@ -18,7 +18,7 @@ class ContainerAvailability(Base):
     terminal = Column(String, nullable=False)
     available = Column(String, nullable=False)
     usda_status = Column(String, nullable=True)
-    last_free_date = Column(String, nullable=True)
+    last_free_day = Column(String, nullable=True)
     location = Column(String, nullable=True)
     custom_release_status = Column(String, nullable=True)
     carrier_release_status = Column(String, nullable=True)
@@ -27,6 +27,13 @@ class ContainerAvailability(Base):
     yard_terminal_release_status = Column(String, nullable=True)
     last_updated_availability = Column(
         String, nullable=False)
+    type_code = Column(String, nullable=True)
+    transit_state = Column(String, nullable=True)
+    departed_terminal = Column(String, nullable=True)
+    holds = Column(String, nullable=True)
+    charges = Column(String, nullable=True)
+    demurage = Column(String, nullable=True)
+    line = Column(String, nullable=True)
 
     shipment = relationship("Shipment", back_populates="containers")
 
