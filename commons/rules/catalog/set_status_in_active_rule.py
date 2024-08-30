@@ -14,5 +14,6 @@ class SetActiveStatusRule(BusinessRule):
         """
         shipment = context.get("shipment")
         shipment.scrape_status = ScrapeStatus.ACTIVE
+        shipment.error = None
         logger.info(
             f"Shipment ID {shipment.shipment_id} status set to ACTIVE")

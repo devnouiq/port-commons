@@ -24,6 +24,7 @@ class SetInProgressStatusRule(BusinessRule):
             shipment.scrape_status = ScrapeStatus.IN_PROGRESS
             shipment.last_scraped_time = get_current_datetime_in_est()
             shipment.next_scrape_time = next_scrape_time
+            shipment.error = None
 
             logger.info(
                 f"Shipment ID {shipment.shipment_id} status set to IN_PROGRESS and last_scraped_time updated to {shipment.last_scraped_time}")

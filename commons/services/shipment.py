@@ -25,14 +25,20 @@ class ShipmentService:
 
         rules.append(SetInProgressStatusRule())
 
-        # Apply any provided rules
-        if rules:
-            for rule in rules:
-                rule.apply(context)
+        try:
+            # Apply any provided rules
+            if rules:
+                for rule in rules:
+                    rule.apply(context)
 
-        # Save or update the shipment
-        self.shipment_repo.save_or_update(
-            shipment, "shipment_id", shipment.shipment_id)
+            # Save or update the shipment
+            self.shipment_repo.save_or_update(
+                shipment, "shipment_id", shipment.shipment_id)
+
+        except Exception as e:
+            logger.error(
+                f"Error processing in-progress shipment: {str(e)}", exc_info=True)
+            raise
 
     def process_failed(self, context: Dict[str, Any], rules: Optional[list] = []):
         """
@@ -41,18 +47,24 @@ class ShipmentService:
         shipment = context.get('shipment')
         error_message = context.get('error_message')
 
-        # Mark the shipment as FAILED
-        shipment.scrape_status = ScrapeStatus.FAILED
-        shipment.error = error_message
+        try:
+            # Mark the shipment as FAILED
+            shipment.scrape_status = ScrapeStatus.FAILED
+            shipment.error = error_message
 
-        # Apply any provided rules
-        if rules:
-            for rule in rules:
-                rule.apply(context)
+            # Apply any provided rules
+            if rules:
+                for rule in rules:
+                    rule.apply(context)
 
-        # Save or update the shipment
-        self.shipment_repo.save_or_update(
-            shipment, "shipment_id", shipment.shipment_id)
+            # Save or update the shipment
+            self.shipment_repo.save_or_update(
+                shipment, "shipment_id", shipment.shipment_id)
+
+        except Exception as e:
+            logger.error(
+                f"Error processing failed shipment: {str(e)}", exc_info=True)
+            raise
 
     def process_active(self, context: Dict[str, Any], rules: Optional[list] = []):
         """
@@ -64,17 +76,23 @@ class ShipmentService:
 
         rules.append(SetActiveStatusRule())
 
-        # Apply any provided rules
-        if rules:
-            for rule in rules:
-                rule.apply(context)
+        try:
+            # Apply any provided rules
+            if rules:
+                for rule in rules:
+                    rule.apply(context)
 
-        # Save or update the shipment
-        self.shipment_repo.save_or_update(
-            shipment, "shipment_id", shipment.shipment_id)
+            # Save or update the shipment
+            self.shipment_repo.save_or_update(
+                shipment, "shipment_id", shipment.shipment_id)
 
-        # Save or update the ContainerAvailability if provided
-        if container_availability and self.container_repo:
-            container_availability.shipment_id = shipment.shipment_id
-            self.container_repo.save_or_update(
-                container_availability, "container_number", container_availability.container_number)
+            # Save or update the ContainerAvailability if provided
+            if container_availability and self.container_repo:
+                container_availability.shipment_id = shipment.shipment_id
+                self.container_repo.save_or_update(
+                    container_availability, "container_number", container_availability.container_number)
+
+        except Exception as e:
+            logger.error(
+                f"Error processing active shipment: {str(e)}", exc_info=True)
+            raise
