@@ -5,14 +5,12 @@ from commons.utils.date import get_current_datetime_in_est
 
 
 class ContainerDataModel(BaseModel):
-    # Assuming date is stored as DateTime in the database
     date: Optional[datetime] = None
-    port: str
-    terminal: str
-    container_number: str
-    available: str
+    port: Optional[str] = None
+    terminal: Optional[str] = None
+    container_number: Optional[str] = None
+    available: Optional[str] = None
     usda_status: Optional[str] = None
-    # Assuming last_free_date is stored as DateTime
     last_free_date: Optional[datetime] = None
     location: Optional[str] = None
     custom_release_status: Optional[str] = None
@@ -21,8 +19,8 @@ class ContainerDataModel(BaseModel):
     vessel_name: Optional[str] = None
     yard_terminal_release_status: Optional[str] = None
     last_free_date: Optional[str] = None
-    last_updated_availability: datetime = Field(
-        default_factory=lambda: get_current_datetime_in_est())  # Assuming last_updated_availability is stored as DateTime
+    last_updated_availability: Optional[datetime] = Field(
+        default_factory=get_current_datetime_in_est)
 
     class Config:
-        orm_mode = True  # Enables compatibility with SQLAlchemy ORM objects
+        from_attributes = True
