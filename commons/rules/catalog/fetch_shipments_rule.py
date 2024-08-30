@@ -29,7 +29,7 @@ class FetchShipmentsRule(BusinessRule):
 
         # Check if a specific shipment ID is provided in the environment variable
         shipment_id = os.getenv("SHIPMENT_ID")
-
+        logger.info(f"Shipment ID from environment variable: {shipment_id}")
         if shipment_id:
             logger.info(
                 F"Fetching shipment with ID {shipment_id} for trigger use case")
