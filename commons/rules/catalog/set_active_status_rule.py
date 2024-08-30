@@ -1,4 +1,4 @@
-from commons.rules import BusinessRule
+from commons.rules.engine import BusinessRule
 from typing import Dict, Any
 from commons.enums import ScrapeStatus
 from commons.utils.date import get_current_datetime_in_est
