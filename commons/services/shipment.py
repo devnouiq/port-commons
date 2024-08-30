@@ -17,7 +17,7 @@ class ShipmentService:
         self.shipment_repo = shipment_repo
         self.container_repo = container_repo
 
-    def process_in_progress(self, context: Dict[str, Any], rules: Optional[list] = None):
+    def process_in_progress(self, context: Dict[str, Any], rules: Optional[list] = []):
         """
         Mark a shipment as in progress and apply any associated rules.
         """
@@ -34,7 +34,7 @@ class ShipmentService:
         self.shipment_repo.save_or_update(
             shipment, "shipment_id", shipment.shipment_id)
 
-    def process_failed(self, context: Dict[str, Any], rules: Optional[list] = None):
+    def process_failed(self, context: Dict[str, Any], rules: Optional[list] = []):
         """
         Mark a shipment as failed and apply any associated rules.
         """
@@ -54,7 +54,7 @@ class ShipmentService:
         self.shipment_repo.save_or_update(
             shipment, "shipment_id", shipment.shipment_id)
 
-    def process_active(self, context: Dict[str, Any], rules: Optional[list] = None):
+    def process_active(self, context: Dict[str, Any], rules: Optional[list] = []):
         """
         Process a shipment and optionally container availability, marking them as active before applying rules.
         """

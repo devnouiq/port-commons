@@ -22,7 +22,7 @@ class ContainerAvailability(Base):
     demurrage_amount = Column(String, nullable=True)
     vessel_name = Column(String(25), nullable=True)
     yard_terminal_release_status = Column(String, nullable=True)
-    last_free_date= Column(String, nullable=True)
+    last_free_date = Column(String, nullable=True)
     last_updated_availability = Column(
         DateTime, nullable=False, default=get_current_datetime_in_est)  # Store as DateTime
 
