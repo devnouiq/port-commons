@@ -4,6 +4,9 @@ from commons.utils.date import get_current_datetime_in_est
 from commons.utils.logger import get_logger
 from sqlalchemy.orm import Session
 from typing import Dict, Any, Optional
+from ..rules.catalog.set_status_in_active_rule import SetActiveStatusRule
+from ..rules.catalog.set_status_in_failed_rule import SetFailedStatusRule
+from ..rules.catalog.set_status_in_progress_rule import SetInProgressStatusRule
 
 logger = get_logger()
 
