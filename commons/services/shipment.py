@@ -9,13 +9,51 @@ logger = get_logger()
 
 
 class ShipmentService:
-    def __init__(self, session: Session, shipment_repo: BaseRepository, container_repo: Optional[BaseRepository] = None, rules: Optional[list] = None):
+    def __init__(self, session: Session, shipment_repo: BaseRepository, container_repo: Optional[BaseRepository] = None):
         self.session = session
         self.shipment_repo = shipment_repo
         self.container_repo = container_repo
-        self.rules = rules or []
 
-    def process_active(self, context: Dict[str, Any]):
+    def process_in_progress(self, context: Dict[str, Any], rules: Optional[list] = None):
+        """
+        Mark a shipment as in progress and apply any associated rules.
+        """
+        shipment = context.get('shipment')
+
+        # Mark the shipment as IN_PROGRESS
+        shipment.scrape_status = ScrapeStatus.IN_PROGRESS
+        shipment.last_scraped_time = get_current_datetime_in_est()
+
+        # Apply any provided rules
+        if rules:
+            for rule in rules:
+                rule.apply(context)
+
+        # Save or update the shipment
+        self.shipment_repo.save_or_update(
+            shipment, "shipment_id", shipment.shipment_id)
+
+    def process_failed(self, context: Dict[str, Any], rules: Optional[list] = None):
+        """
+        Mark a shipment as failed and apply any associated rules.
+        """
+        shipment = context.get('shipment')
+        error_message = context.get('error_message')
+
+        # Mark the shipment as FAILED
+        shipment.scrape_status = ScrapeStatus.FAILED
+        shipment.error = error_message
+
+        # Apply any provided rules
+        if rules:
+            for rule in rules:
+                rule.apply(context)
+
+        # Save or update the shipment
+        self.shipment_repo.save_or_update(
+            shipment, "shipment_id", shipment.shipment_id)
+
+    def process_active(self, context: Dict[str, Any], rules: Optional[list] = None):
         """
         Process a shipment and optionally container availability, marking them as active before applying rules.
         """
@@ -27,17 +65,10 @@ class ShipmentService:
         shipment.scrape_status = ScrapeStatus.ACTIVE
         shipment.last_scraped_time = get_current_datetime_in_est()
 
-        # Call the process method to apply rules and save the data
-        self.process(shipment, existing_container, container_availability)
-
-    def process(self, shipment, existing_container=None, container_availability=None):
-        """
-        Apply the business rules and save the updated shipment and optionally container availability.
-        """
-        # Apply rules to shipment and container availability
-        for rule in self.rules:
-            rule.apply(
-                {"shipment": shipment, "container_availability": container_availability})
+        # Apply any provided rules
+        if rules:
+            for rule in rules:
+                rule.apply(context)
 
         # Save or update the shipment
         self.shipment_repo.save_or_update(
