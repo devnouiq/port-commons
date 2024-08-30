@@ -28,7 +28,7 @@ class ContainerDataFactory:
 
         # Step 2: Apply the custom rules to compute or override values in the mapped data
         for rule_class in self.rules:
-            rule_instance = rule_class(row, mapped_data)
+            rule_instance = rule_class(json_data=row, mapped_data=mapped_data)
             rule_instance.process()
 
         # Step 3: Create and return the ContainerAvailability object with the final mapped data
