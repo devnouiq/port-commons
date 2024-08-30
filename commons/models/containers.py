@@ -18,6 +18,7 @@ class ContainerDataModel(BaseModel):
     yard_terminal_release_status: Optional[str] = None
     last_free_date: Optional[str] = None
     last_updated_availability: Optional[str] = None
+    shipment_id: Optional[int] = None
 
     class Config:
         from_attributes = True
