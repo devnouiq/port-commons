@@ -14,10 +14,14 @@ class ShipmentService:
         self.container_repo = container_repo
         self.rules = rules
 
-    def process_active(self, shipment, existing_container, container_availability):
+    def process_active(self, context: Dict[str, Any]):
         """
         Process a shipment and container availability, marking them as active before applying rules.
         """
+        shipment = context.get('shipment')
+        existing_container = context.get('container')
+        container_availability = context.get('container_availability')
+
         # Mark the shipment and container availability as ACTIVE
         shipment.scrape_status = ScrapeStatus.ACTIVE
         shipment.last_scraped_time = get_current_datetime_in_est()
