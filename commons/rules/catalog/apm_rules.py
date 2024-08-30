@@ -1,61 +1,51 @@
 from typing import Dict
-from commons.schemas.shipment import ContainerAvailability
-from commons.utils.logger import get_logger
-
-logger = get_logger()
 
 
 class APMRules:
-    def __init__(self, json_data: Dict[str, str], container_availability: ContainerAvailability):
+    def __init__(self, mapped_data: Dict[str, str]):
         """
-        Initialize the rules with the JSON data and the ContainerAvailability instance.
-        :param json_data: The JSON response data from the scraper.
-        :param container_availability: The ContainerAvailability object to apply the rules to.
+        Initialize the rules with the mapped data.
+        :param mapped_data: The mapped data from the factory.
         """
-        self.json_data = json_data
-        self.container_availability = container_availability
+        self.mapped_data = mapped_data
 
     def apply_demurrage_rule(self):
         """Apply the rule for 'Demurrage'."""
-        current_date = self.json_data.get('LocalDateTime', '')
-        gate_out_date = self.json_data.get('GateOutDate', '')
-        good_thru = self.json_data.get('GoodThru', '')
+        current_date = self.mapped_data.get('LocalDateTime', '')
+        gate_out_date = self.mapped_data.get('GateOutDate', '')
+        good_thru = self.mapped_data.get('GoodThru', '')
 
         if current_date > good_thru and not gate_out_date:
-            self.container_availability.demurrage_amount = 'YES'
+            self.mapped_data['Demurrage'] = 'YES'
         else:
-            self.container_availability.demurrage_amount = 'NO'
+            self.mapped_data['Demurrage'] = 'NO'
 
     def apply_holds_rule(self):
         """Apply the rule for 'Holds'."""
-        freight_status = self.json_data.get('Freight', '')
-        customs_status = self.json_data.get('Customs', '')
-        hold = self.json_data.get('Hold', '')
+        freight_status = self.mapped_data.get('freight', '')
+        customs_status = self.mapped_data.get('customs', '')
+        hold = self.mapped_data.get('Hold', '')
 
         if freight_status == 'HOLD' or customs_status == 'HOLD' or hold == 'HOLD':
-            self.container_availability.holds = 'YES'
+            self.mapped_data['Holds'] = 'YES'
         else:
-            self.container_availability.holds = 'NO'
-
-    def apply_departed_terminal_rule(self):
-        """Apply the rule for 'Departed Terminal'."""
-        if self.json_data.get('GateOutDate'):
-            self.container_availability.yard_terminal_release_status = 'YES'
-        else:
-            self.container_availability.yard_terminal_release_status = 'NO'
+            self.mapped_data['Holds'] = 'NO'
 
     def apply_transit_state_rule(self):
         """Apply the rule for 'Transit State'."""
-        if not self.json_data.get('YardLocation'):
-            self.container_availability.transit_state = self.json_data.get(
+        if not self.mapped_data.get('YardLocation'):
+            self.mapped_data['transit_state'] = self.mapped_data.get(
                 'VesselEta', '')
 
-    def process(self):
+    def process(self, mapped_data: Dict[str, str]) -> Dict[str, str]:
         """
-        Apply all the rules to the container_availability object.
+        Apply all the rules to modify the mapped data before creating ContainerAvailability.
+        :param mapped_data: The mapped data dictionary.
+        :return: The modified mapped data dictionary.
         """
+        self.mapped_data = mapped_data
+
         self.apply_demurrage_rule()
         self.apply_holds_rule()
-        self.apply_departed_terminal_rule()
         self.apply_transit_state_rule()
-        return self.container_availability
+        return self.mapped_data

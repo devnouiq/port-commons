@@ -1,6 +1,5 @@
-from typing import Dict
+from typing import Dict, List
 from ..schemas.shipment import ContainerAvailability
-from typing import List
 from ..rules.engine import BusinessRule
 
 
@@ -21,19 +20,20 @@ class ContainerDataFactory:
         :param shipment_id: The ID of the shipment associated with this container.
         :return: A ContainerAvailability instance.
         """
-        # Map the data from the JSON using the mapping configuration
+        # Step 1: Map the data from the JSON using the mapping configuration
         mapped_data = {
             field: row.get(source_field)
             for field, source_field in self.mapping_config.items()
         }
 
-        # Apply the custom rules to compute or override values and send mapped data
+        # Step 2: Apply the custom rules to compute or override values in the mapped data
         for rule in self.rules:
-            rule.apply(row, mapped_data)
+            mapped_data = rule.process(mapped_data)
 
-        # Create and return the ContainerAvailability object
+        # Step 3: Create and return the ContainerAvailability object
         container_availability = ContainerAvailability(
             shipment_id=shipment_id,
             **mapped_data
         )
+
         return container_availability
