@@ -1,6 +1,6 @@
 from typing import Dict, List
-from ..schemas.shipment import ContainerAvailability
-from ..rules.engine import BusinessRule
+from commons.schemas.shipment import ContainerAvailability
+from commons.rules.engine import BusinessRule
 
 
 class ContainerDataFactory:
@@ -27,10 +27,11 @@ class ContainerDataFactory:
         }
 
         # Step 2: Apply the custom rules to compute or override values in the mapped data
-        for rule in self.rules:
-            mapped_data = rule.process(mapped_data)
+        for rule_class in self.rules:
+            rule_instance = rule_class(row, mapped_data)
+            rule_instance.process()
 
-        # Step 3: Create and return the ContainerAvailability object
+        # Step 3: Create and return the ContainerAvailability object with the final mapped data
         container_availability = ContainerAvailability(
             shipment_id=shipment_id,
             **mapped_data
