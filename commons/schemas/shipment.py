@@ -1,15 +1,16 @@
-
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, PrimaryKeyConstraint, Text, Enum
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from .base import Base
 from commons.utils.date import get_current_datetime_in_est
 from commons.enums import ScrapeStatus
+import uuid
 
 
 class ContainerAvailability(Base):
     __tablename__ = "container_status_table"
 
-    shipment_id = Column(Integer, ForeignKey(
+    shipment_id = Column(UUID(as_uuid=True), ForeignKey(
         "shipments.shipment_id"), nullable=False)
     container_number = Column(String, nullable=False)
 
@@ -51,7 +52,8 @@ class ContainerAvailability(Base):
 class Shipment(Base):
     __tablename__ = 'shipments'
 
-    shipment_id = Column(Integer, primary_key=True)
+    shipment_id = Column(UUID(as_uuid=True), primary_key=True,
+                         default=uuid.uuid4, unique=True, nullable=False)
     container_number = Column(String(30), nullable=True)
     master_bol_number = Column(String(30), nullable=True)
     house_bol_number = Column(String(30), nullable=True)
