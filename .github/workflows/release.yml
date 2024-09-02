@@ -1,0 +1,56 @@
+name: Bump Version and Create Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: pip install setuptools wheel
+
+    - name: Bump version and create tag
+      id: bump_version
+      run: |
+        # Extract current version
+        current_version=$(grep -Po '(?<=version=")[^"]*' setup.py)
+        echo "Current version: $current_version"
+
+        # Bump the version
+        new_version=$(python -c "from pkg_resources import parse_version as v; print(v('$current_version').base_version[:2] + '.' + str(int(v('$current_version').base_version.split('.')[2]) + 1))")
+        echo "New version: $new_version"
+
+        # Update version in setup.py
+        sed -i "s/version=\"$current_version\"/version=\"$new_version\"/g" setup.py
+
+        # Commit changes
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git commit -am "Bump version to $new_version"
+        git tag "v$new_version"
+
+        # Push changes and tag
+        git push origin main --tags
+
+    - name: Create GitHub Release
+      uses: actions/create-release@v1
+      with:
+        tag_name: v${{ steps.bump_version.outputs.new_version }}
+        release_name: "Release v${{ steps.bump_version.outputs.new_version }}"
+        body: "Release for version ${{ steps.bump_version.outputs.new_version }}"
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
