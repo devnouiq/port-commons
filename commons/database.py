@@ -45,40 +45,46 @@ def initialize_data():
     """Insert initial data into the scraper_metadata table."""
     with get_session() as session:
         try:
-            # Check if there are already records to avoid duplicates
-            if session.query(ScraperMetadata).count() == 0:
-                initial_data = [
-                    ScraperMetadata(
-                        scraper_friendly_name="APM Terminal Scraper",
-                        scraper_id=Scraper.APM,
-                        terminal_id="APM",
-                        scrape_frequency_hours=24,
-                        is_active=True,
-                        scraper_version="1.0.0"
-                    ),
-                    ScraperMetadata(
-                        scraper_friendly_name="MAHER Terminal Scraper",
-                        scraper_id=Scraper.MAHER,
-                        terminal_id="MAHER",
-                        scrape_frequency_hours=12,
-                        is_active=True,
-                        scraper_version="1.0.0"
-                    ),
-                    ScraperMetadata(
-                        scraper_friendly_name="PTP Terminal Scraper",
-                        scraper_id=Scraper.PTP,  # Assuming PTP is an enum in Scraper
-                        terminal_id="PTP",
-                        scrape_frequency_hours=24,
-                        is_active=True,
-                        scraper_version="1.0.0"
-                    ),
-                    # Add more initial rows as needed
-                ]
-                session.add_all(initial_data)
-                session.commit()
-                logger.info("Initial data inserted successfully.")
-            else:
-                logger.info("Data already exists. Skipping initialization.")
+
+            initial_data = [
+                ScraperMetadata(
+                    scraper_friendly_name="APM Terminal Scraper",
+                    scraper_id=Scraper.APM,
+                    terminal_id="APM",
+                    scrape_frequency_hours=24,
+                    is_active=True,
+                    scraper_version="1.0.0"
+                ),
+                ScraperMetadata(
+                    scraper_friendly_name="MAHER Terminal Scraper",
+                    scraper_id=Scraper.MAHER,
+                    terminal_id="MAHER",
+                    scrape_frequency_hours=12,
+                    is_active=True,
+                    scraper_version="1.0.0"
+                ),
+                ScraperMetadata(
+                    scraper_friendly_name="PTP Terminal Scraper",
+                    scraper_id=Scraper.PTP,  # Assuming PTP is an enum in Scraper
+                    terminal_id="PTP",
+                    scrape_frequency_hours=24,
+                    is_active=True,
+                    scraper_version="1.0.0"
+                ),
+                ScraperMetadata(
+                    scraper_friendly_name="PNCT Terminal Scraper",
+                    scraper_id=Scraper.PNCT,  # Assuming PNCT is an enum in Scraper
+                    terminal_id="PNCT",
+                    scrape_frequency_hours=24,
+                    is_active=True,
+                    scraper_version="1.0.0"
+                ),
+                # Add more initial rows as needed
+            ]
+            session.add_all(initial_data)
+            session.commit()
+            logger.info("Initial data inserted successfully.")
+
         except SQLAlchemyError as e:
             session.rollback()
             logger.error(f"Error inserting initial data: {e}")
