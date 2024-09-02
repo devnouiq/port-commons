@@ -40,14 +40,17 @@ jobs:
     - name: Bump version in setup.py
       run: |
         sed -i "s/version=\"$current_version\"/version=\"$new_version\"/" setup.py
+        git diff --exit-code || echo "Version bumped to $new_version" || exit 1
 
     - name: Commit and push changes
+      if: success()
       env:
         GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
       run: |
         git config user.name "github-actions[bot]"
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-        git commit -am "Bump version to $new_version"
+        git add setup.py
+        git commit -m "Bump version to $new_version"
         git tag "v$new_version"
         git push origin main --tags
 
