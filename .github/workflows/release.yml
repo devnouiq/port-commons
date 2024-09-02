@@ -28,8 +28,9 @@ jobs:
         current_version=$(grep -Po '(?<=version=")[^"]*' setup.py)
         echo "Current version: $current_version"
 
-        # Bump the version
-        new_version=$(python -c "from pkg_resources import parse_version as v; print(v('$current_version').base_version[:2] + '.' + str(int(v('$current_version').base_version.split('.')[2]) + 1))")
+        # Bump the version (fixing the extra dot issue)
+        IFS='.' read -r -a version_parts <<< "$current_version"
+        new_version="${version_parts[0]}.${version_parts[1]}.$((version_parts[2] + 1))"
         echo "New version: $new_version"
 
         # Update version in setup.py
@@ -53,4 +54,4 @@ jobs:
         draft: false
         prerelease: false
       env:
-        GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
