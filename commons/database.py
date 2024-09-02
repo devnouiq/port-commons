@@ -64,6 +64,14 @@ def initialize_data():
                         is_active=True,
                         scraper_version="1.0.0"
                     ),
+                    ScraperMetadata(
+                        scraper_friendly_name="PTP Terminal Scraper",
+                        scraper_id=Scraper.PTP,  # Assuming PTP is an enum in Scraper
+                        terminal_id="PTP",
+                        scrape_frequency_hours=24,
+                        is_active=True,
+                        scraper_version="1.0.0"
+                    ),
                     # Add more initial rows as needed
                 ]
                 session.add_all(initial_data)
