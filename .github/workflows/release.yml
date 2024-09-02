@@ -5,53 +5,58 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
 jobs:
-  bump-version:
+  build:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: '3.x'
 
     - name: Install dependencies
-      run: pip install setuptools wheel
-
-    - name: Bump version and create tag
-      id: bump_version
       run: |
-        # Extract current version
-        current_version=$(grep -Po '(?<=version=")[^"]*' setup.py)
+        python -m pip install --upgrade pip
+        pip install setuptools
+
+    - name: Extract current version
+      id: extract_version
+      run: |
+        current_version=$(python setup.py --version)
         echo "Current version: $current_version"
-
-        # Bump the version (fixing the extra dot issue)
-        IFS='.' read -r -a version_parts <<< "$current_version"
-        new_version="${version_parts[0]}.${version_parts[1]}.$((version_parts[2] + 1))"
+        new_version=$(python -c "import re; print(re.sub(r'(\d+)\.(\d+)\.(\d+)', lambda m: f'{m.group(1)}.{m.group(2)}.{int(m.group(3))+1}', '$current_version'))")
         echo "New version: $new_version"
+        echo "new_version=$new_version" >> $GITHUB_ENV
 
-        # Update version in setup.py
-        sed -i "s/version=\"$current_version\"/version=\"$new_version\"/g" setup.py
+    - name: Bump version in setup.py
+      run: |
+        sed -i "s/version=\"$current_version\"/version=\"$new_version\"/" setup.py
 
-        # Commit changes
+    - name: Commit and push changes
+      env:
+        GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+      run: |
         git config user.name "github-actions[bot]"
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
         git commit -am "Bump version to $new_version"
         git tag "v$new_version"
-
-        # Push changes and tag
         git push origin main --tags
 
-    - name: Create GitHub Release
+    - name: Create GitHub release
       uses: actions/create-release@v1
-      with:
-        tag_name: v${{ steps.bump_version.outputs.new_version }}
-        release_name: "Release v${{ steps.bump_version.outputs.new_version }}"
-        body: "Release for version ${{ steps.bump_version.outputs.new_version }}"
-        draft: false
-        prerelease: false
       env:
         GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+      with:
+        tag_name: "v${{ env.new_version }}"
+        release_name: "v${{ env.new_version }}"
+        draft: false
+        prerelease: false
