@@ -13,3 +13,5 @@ class ScrapeStatus(Enum):
 class Scraper(Enum):
     APM = "APM"
     MAHER = "MAHER"
+    PTP = "PTP"
+    PNCT = "PNCT"
