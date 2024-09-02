@@ -96,3 +96,30 @@ class ShipmentService:
             logger.error(
                 f"Error processing active shipment: {str(e)}", exc_info=True)
             raise
+
+    def mark_shipments_in_progress(self, shipments):
+        for shipment in shipments:
+            try:
+                logger.info(
+                    f"Marking shipment ID {shipment.shipment_id} and container {shipment.container_number} 'In Progress'")
+
+                context = {"shipment": shipment}
+                self.process_in_progress(context)
+            except Exception as e:
+                logger.error(
+                    f"Failed to update status to 'In Progress' for shipment ID {shipment.shipment_id} and container {shipment.container_number} : {str(e)}", exc_info=True)
+                context = {"shipment": shipment, "error_message": str(e)}
+                self.process_failed(context)
+
+    def mark_shipments_in_error(self, shipments, error_message):
+        """
+        Log errors for each shipment in the current batch.
+        """
+        for shipment in shipments:
+            try:
+                context = {"shipment": shipment,
+                           "error_message": error_message}
+                self.process_failed(context)
+            except Exception as e:
+                logger.error(
+                    f"Failed to log error for shipment ID {shipment.shipment_id}: {str(e)}", exc_info=True)

@@ -76,13 +76,12 @@ class BaseRepository:
             self.session.rollback()
             raise
 
-    def get_by_container_number_and_shipment_id(self, container_number: str, shipment_id: int) -> Any:
+    def get_latest(self, order_by_field: str):
         try:
-            logger.info(
-                f"Fetching entity by container_number={container_number} and shipment_id={shipment_id}")
-            return self.get_by_fields(container_number=container_number, shipment_id=shipment_id)
+            logger.info(f"Fetching latest entity ordered by {order_by_field}")
+            return self.session.query(self.model).order_by(getattr(self.model, order_by_field).desc()).first()
         except SQLAlchemyError as e:
             logger.error(
-                f"Error fetching entity by container_number and shipment_id: {str(e)}", exc_info=True)
+                f"Error fetching latest entity: {str(e)}", exc_info=True)
             self.session.rollback()
             raise
