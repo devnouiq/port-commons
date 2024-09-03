@@ -6,18 +6,25 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from ..utils.logger import get_logger
+from .aws import AWSService
+import os
 
 
 logger = get_logger()
 
 
 class BrowserService:
-    def __init__(self, headless=True, window_size="1920,1080", options=None):
+    def __init__(self, aws_service: AWSService, bucket_name, headless=True, window_size="1920,1080", timeout=60, options=None):
         self.driver = None
+        self.aws_service = aws_service
+        self.bucket_name = bucket_name
         self.headless = headless
         self.window_size = window_size
+        self.timeout = timeout
         self.options = options or Options()
         self._initialize_options()
+        self.logger = get_logger()
+        self.run_id = self.logger._instance.run_id
 
     def _initialize_options(self):
         self.options.add_argument(f'--window-size={self.window_size}')
@@ -34,90 +41,119 @@ class BrowserService:
         self.options.add_argument('--disable-gpu')
         self.options.add_argument('--disable-infobars')
         self.options.add_argument('--disable-extensions')
-        logger.info("Browser options initialized")
+        self.logger.info("Browser options initialized")
 
     def initialize_browser(self):
         try:
             service = Service(ChromeDriverManager().install())
             self.driver = webdriver.Chrome(
                 service=service, options=self.options)
-            logger.info("Browser initialized")
+            # Set implicit wait for general use
+            self.driver.implicitly_wait(self.timeout)
+            self.logger.info(
+                f"Browser initialized with a timeout of {self.timeout} seconds")
         except Exception as e:
-            logger.error(f"Failed to initialize browser: {e}")
+            self.logger.error(f"Failed to initialize browser: {e}")
             raise
 
     def stop_browser(self):
         if self.driver:
             self.driver.stop_client()
-            logger.info("Browser client stopped")
+            self.logger.info("Browser client stopped")
 
     def quit_browser(self):
         if self.driver:
             self.driver.quit()
-            logger.info("Browser quit successfully")
+            self.logger.info("Browser quit successfully")
 
-    def take_screenshot(self, file_path):
+    def take_screenshot(self, step_name):
         try:
             if self.driver:
+                file_path = f'screenshot_{step_name}.png'
                 self.driver.save_screenshot(file_path)
-                logger.info(f"Screenshot saved to {file_path}")
+                self.logger.info(f"Screenshot saved to {file_path}")
+
+                # Upload the screenshot to S3 using the pre-configured bucket name
+                self.aws_service.upload_screenshot(
+                    file_path, self.run_id, step_name, self.bucket_name)
+
+                # Clean up local file
+                os.remove(file_path)
         except Exception as e:
-            logger.error(f"Failed to take screenshot: {e}")
+            self.logger.error(f"Failed to take screenshot: {e}")
             raise
 
     def navigate_to_url(self, url):
         try:
             if self.driver:
                 self.driver.get(url)
-                logger.info(f"Navigated to {url}")
+                self.logger.info(f"Navigated to {url}")
         except Exception as e:
-            logger.error(f"Failed to navigate to {url}: {e}")
+            self.logger.error(f"Failed to navigate to {url}: {e}")
             raise
 
-    def find_element(self, by: By, value: str, timeout=30):
+    def find_element(self, by: By, value: str):
         try:
             if self.driver:
-                element = WebDriverWait(self.driver, timeout).until(
-                    EC.presence_of_element_located((by, value)))
-                logger.info(f"Element found: {value}")
+                element = self.driver.find_element(by, value)
+                self.logger.info(f"Element found: {value}")
                 return element
         except Exception as e:
-            logger.error(f"Failed to find element: {value} - {e}")
+            self.logger.error(f"Failed to find element: {value} - {e}")
             raise
 
-    def click_element(self, by: By, value: str, timeout=30):
+    def click_element(self, by: By, value: str, timeout=None):
         try:
-            element = self.find_element(by, value, timeout)
+            if timeout is None:
+                timeout = self.timeout
+            self.logger.info(
+                f"Waiting for element to be clickable: {value} for up to {timeout} seconds")
+            element = WebDriverWait(self.driver, timeout).until(
+                EC.element_to_be_clickable((by, value))
+            )
             element.click()
-            logger.info(f"Clicked element: {value}")
+            self.logger.info(f"Clicked element: {value}")
         except Exception as e:
-            logger.error(f"Failed to click element: {value} - {e}")
+            self.logger.error(f"Failed to click element: {value} - {e}")
             raise
 
-    def input_text(self, by: By, value: str, text: str, timeout=30):
+    def input_text(self, by: By, value: str, text: str, timeout=None):
         try:
-            element = self.find_element(by, value, timeout)
+            if timeout is None:
+                timeout = self.timeout
+            self.logger.info(
+                f"Waiting for element to be visible: {value} for up to {timeout} seconds")
+            element = WebDriverWait(self.driver, timeout).until(
+                EC.visibility_of_element_located((by, value))
+            )
             element.send_keys(text)
-            logger.info(f"Input text '{text}' into element: {value}")
+            self.logger.info(f"Input text '{text}' into element: {value}")
         except Exception as e:
-            logger.error(f"Failed to input text into element: {value} - {e}")
+            self.logger.error(
+                f"Failed to input text into element: {value} - {e}")
             raise
 
-    def wait_for_url_change(self, current_url, timeout=30):
+    def wait_for_url_change(self, current_url, timeout=None):
         try:
+            if timeout is None:
+                timeout = self.timeout
+            self.logger.info(
+                f"Waiting for URL to change from {current_url} for up to {timeout} seconds")
             WebDriverWait(self.driver, timeout).until(
-                EC.url_changes(current_url))
-            logger.info("URL changed successfully")
+                EC.url_changes(current_url)
+            )
+            self.logger.info("URL changed successfully")
         except Exception as e:
-            logger.error(f"URL did not change within the timeout period: {e}")
+            self.logger.error(
+                f"URL did not change within the timeout period: {e}")
             raise
 
     def get_cookies(self):
         try:
             if self.driver:
                 cookies = self.driver.get_cookies()
-                logger.info("Cookies retrieved successfully")
+                self.logger.info("Cookies retrieved successfully")
                 return cookies
         except Exception as e:
-            logger.error(f"Failed to get cookies: {e}")
+            self.logger.error(f"Failed to get cookies: {e}")
             raise
