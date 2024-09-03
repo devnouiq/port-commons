@@ -67,7 +67,7 @@ def initialize_data():
                     ScraperMetadata(
                         scraper_friendly_name="PTP Terminal Scraper",
                         scraper_id=Scraper.PTP,  # Assuming PTP is an enum in Scraper
-                        terminal_id="PTP",
+                        terminal_id="NYCT",
                         scrape_frequency_hours=24,
                         is_active=True,
                         scraper_version="1.0.0"
