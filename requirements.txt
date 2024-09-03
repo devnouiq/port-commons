@@ -6,3 +6,5 @@ fastapi
 loguru
 psycopg2-binary
 alembic
+selenium
+webdriver-manager
