@@ -14,7 +14,7 @@ class ContainerAvailability(Base):
         "shipments.shipment_id"), nullable=False)
     container_number = Column(String, nullable=False)
 
-    date = Column(String, nullable=True)
+    vessel_eta = Column(String, nullable=True)
     port = Column(String, nullable=False)
     terminal = Column(String, nullable=False)
     available = Column(String, nullable=False)
@@ -29,7 +29,6 @@ class ContainerAvailability(Base):
     last_updated_availability = Column(
         String, nullable=False)
     type_code = Column(String, nullable=True)
-    transit_state = Column(String, nullable=True)
     departed_terminal = Column(String, nullable=True)
     holds = Column(String, nullable=True)
     charges = Column(String, nullable=True)
@@ -69,6 +68,8 @@ class Shipment(Base):
     last_scraped_time = Column(DateTime, nullable=True)  # Store as DateTime
     next_scrape_time = Column(DateTime, nullable=True)  # Store as DateTime
     start_scrape_time = Column(DateTime, nullable=True)  # Store as DateTime
+    reference_id = Column(String, nullable=True)
+    company_code = Column(String, nullable=True)
 
     containers = relationship("ContainerAvailability",
                               back_populates="shipment")

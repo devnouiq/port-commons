@@ -53,6 +53,7 @@ class FetchShipmentsRule(BusinessRule):
                     Shipment.scrape_status == ScrapeStatus.ACTIVE.name
                 ),
                 Shipment.start_scrape_time <= current_time_est,
+                Shipment.start_scrape_time <= Shipment.next_scrape_time,
                 (func.extract('epoch', current_time_est -
                  Shipment.last_scraped_time) / 3600) >= Shipment.frequency,
             ).all()

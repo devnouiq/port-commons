@@ -1,6 +1,4 @@
 from commons.repository import BaseRepository
-from commons.enums import ScrapeStatus
-from commons.utils.date import get_current_datetime_in_est
 from commons.utils.logger import get_logger
 from sqlalchemy.orm import Session
 from typing import Dict, Any, Optional
@@ -48,9 +46,8 @@ class ShipmentService:
         error_message = context.get('error_message')
 
         try:
-            # Mark the shipment as FAILED
-            shipment.scrape_status = ScrapeStatus.FAILED
-            shipment.error = error_message
+
+            rules.append(SetFailedStatusRule(error_message))
 
             # Apply any provided rules
             if rules:
