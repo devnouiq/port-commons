@@ -1,5 +1,6 @@
 import boto3
 from botocore.exceptions import NoCredentialsError, ClientError
+import os
 
 
 class AWSService:

@@ -5,26 +5,22 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
-from ..utils.logger import get_logger
 from .aws import AWSService
 import os
 
 
-logger = get_logger()
-
-
 class BrowserService:
-    def __init__(self, aws_service: AWSService, bucket_name, headless=True, window_size="1920,1080", timeout=60, options=None):
+    def __init__(self, aws_service: AWSService, bucket_name, logger, headless=True, window_size="1920,1080", timeout=60, options=None):
         self.driver = None
         self.aws_service = aws_service
         self.bucket_name = bucket_name
+        self.logger = logger  # Use the passed logger instance
+        self.run_id = logger.run_id  # Access run_id directly from logger instance
         self.headless = headless
         self.window_size = window_size
         self.timeout = timeout
         self.options = options or Options()
         self._initialize_options()
-        self.logger = get_logger()
-        self.run_id = self.logger._instance.run_id
 
     def _initialize_options(self):
         self.options.add_argument(f'--window-size={self.window_size}')

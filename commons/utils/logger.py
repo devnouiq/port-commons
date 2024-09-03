@@ -20,7 +20,19 @@ class Logger:
             loguru_logger.add(lambda msg: print(msg, end=''),
                               format=cls._log_format(cls._instance))
 
-        return loguru_logger
+        return cls._instance
+
+    def info(self, message):
+        loguru_logger.info(message)
+
+    def error(self, message):
+        loguru_logger.error(message)
+
+    def warning(self, message):
+        loguru_logger.warning(message)
+
+    def debug(self, message):
+        loguru_logger.debug(message)
 
     @staticmethod
     def _log_format(instance):
