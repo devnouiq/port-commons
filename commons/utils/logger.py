@@ -1,6 +1,7 @@
 from loguru import logger as loguru_logger
 from datetime import datetime
 import uuid
+import sys
 
 
 class Logger:
@@ -25,8 +26,11 @@ class Logger:
     def info(self, message):
         loguru_logger.info(message)
 
-    def error(self, message):
-        loguru_logger.error(message)
+    def error(self, message, exc_info=False):
+        if exc_info:
+            loguru_logger.error(message + " | Exception: {}", sys.exc_info())
+        else:
+            loguru_logger.error(message)
 
     def warning(self, message):
         loguru_logger.warning(message)

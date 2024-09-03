@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from typing import Dict
 
 
@@ -55,6 +56,33 @@ class PTPRules:
         """Apply the rule for 'Transit State'."""
         self.mapped_data['transit_state'] = self.json_data.get('Status', 'N/A')
 
+    # Adding new rules based on the original `container_data` logic
+
+    def apply_usda_status_rule(self):
+        """Apply the rule for 'USDA Status'."""
+        self.mapped_data['usda_status'] = next(
+            (hold.get('status', 'N/A') for hold in self.json_data.get('shipmentstatus', [{}])[0].get('holdsinfo', [{}]) if hold.get('type') == 'CUSTOMS'), 'N/A')
+
+    def apply_last_free_date_rule(self):
+        """Apply the rule for 'Last Free Date'."""
+        self.mapped_data['last_free_date'] = self.json_data.get(
+            'locations', [{}])[0].get('locationinfo', {}).get('currentconditioninfo', {}).get('lastfree_dttm', 'N/A')
+
+    def apply_location_rule(self):
+        """Apply the rule for 'Location'."""
+        self.mapped_data['location'] = self.json_data.get(
+            'locations', [{}])[0].get('locationinfo', {}).get('currentconditioninfo', {}).get('yard_loc', 'N/A')
+
+    def apply_custom_release_status_rule(self):
+        """Apply the rule for 'Custom Release Status'."""
+        self.mapped_data['custom_release_status'] = next(
+            (hold.get('status', 'N/A') for hold in self.json_data.get('shipmentstatus', [{}])[0].get('holdsinfo', [{}]) if hold.get('type') == 'CUSTOMS'), 'N/A')
+
+    def apply_carrier_release_status_rule(self):
+        """Apply the rule for 'Carrier Release Status'."""
+        self.mapped_data['carrier_release_status'] = next(
+            (hold.get('status', 'N/A') for hold in self.json_data.get('shipmentstatus', [{}])[0].get('holdsinfo', [{}]) if hold.get('type') == 'FREIGHT'), 'N/A')
+
     def process(self):
         """
         Apply all the rules to the mapped_data object.
@@ -64,3 +92,9 @@ class PTPRules:
         self.apply_holds_rule()
         self.apply_departed_terminal_rule()
         self.apply_transit_state_rule()
+        # Apply new rules
+        self.apply_usda_status_rule()
+        self.apply_last_free_date_rule()
+        self.apply_location_rule()
+        self.apply_custom_release_status_rule()
+        self.apply_carrier_release_status_rule()

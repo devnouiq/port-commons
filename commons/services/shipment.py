@@ -105,6 +105,7 @@ class ShipmentService:
 
                 context = {"shipment": shipment}
                 self.process_in_progress(context)
+                logger.info(f"Updated status to 'In Progress' for shipment ID {shipment.shipment_id} and container {shipment.container_number}")
             except Exception as e:
                 logger.error(
                     f"Failed to update status to 'In Progress' for shipment ID {shipment.shipment_id} and container {shipment.container_number} : {str(e)}", exc_info=True)
