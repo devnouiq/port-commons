@@ -26,7 +26,7 @@ class ContainerAvailability(Base):
     demurrage_amount = Column(String, nullable=True)
     yard_terminal_release_status = Column(String, nullable=True)
     last_updated_availability = Column(
-        String, nullable=True)  # Store as DateTime
+        String, nullable=False)  # Store as DateTime
     type_code = Column(String, nullable=True)
     departed_terminal = Column(String, nullable=True)
     holds = Column(String, nullable=True)
@@ -71,7 +71,7 @@ class Shipment(Base):
     reference_id = Column(String, nullable=True)
     company_code = Column(String, nullable=True)
     vessel_orig_eta = Column(DateTime, nullable=True)  # Store as DateTime
-    run_id = Column(UUID(as_uuid=True), nullable=False)
+    run_id = Column(UUID(as_uuid=True), nullable=True)
 
     containers = relationship("ContainerAvailability",
                               back_populates="shipment")

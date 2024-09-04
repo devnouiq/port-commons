@@ -15,10 +15,11 @@ class FetchShipmentsRule(BusinessRule):
         """
         Apply the rule to fetch shipments based on the provided terminal ID and other criteria.
 
-        :param context: The context dictionary containing the SQLAlchemy session and scraper metadata.
+        :param context: The context dictionary containing the SQLAlchemy session, scraper metadata, and logger run_id.
         """
         session = context.get('session')
         scraper_metadata = context.get('scraper_metadata')
+        run_id = context.get('run_id', None)
 
         if not session or not scraper_metadata:
             raise ValueError(
@@ -27,12 +28,16 @@ class FetchShipmentsRule(BusinessRule):
         terminal_id = scraper_metadata.terminal_id
         current_time_est = get_current_datetime_in_est()
 
+        # Log the run_id if available
+        if run_id:
+            logger.info(f"Applying FetchShipmentsRule for run_id: {run_id}")
+
         # Check if a specific shipment ID is provided in the environment variable
         shipment_id = os.getenv("SHIPMENT_ID")
         logger.info(f"Shipment ID from environment variable: {shipment_id}")
         if shipment_id:
             logger.info(
-                F"Fetching shipment with ID {shipment_id} for trigger use case")
+                f"Fetching shipment with ID {shipment_id} for trigger use case")
             # Fetch only the specific shipment if shipment_id is provided
             shipment = session.query(Shipment).filter(
                 Shipment.terminal_id == terminal_id,
@@ -59,4 +64,6 @@ class FetchShipmentsRule(BusinessRule):
             ).all()
 
             # Store the fetched shipments in the context for further processing
+            logger.info(
+                f"Fetched {len(shipments)} shipments for terminal ID: {terminal_id}")
             context['shipments'] = shipments

@@ -10,6 +10,7 @@ class BaseRepository:
     def __init__(self, session: Session, model: Any):
         self.session = session
         self.model = model
+        self.run_id = logger.run_id
 
     def save(self, entity: Any):
         try:
