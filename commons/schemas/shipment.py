@@ -24,7 +24,6 @@ class ContainerAvailability(Base):
     custom_release_status = Column(String, nullable=True)
     carrier_release_status = Column(String, nullable=True)
     demurrage_amount = Column(String, nullable=True)
-    vessel_name = Column(String(25), nullable=True)
     yard_terminal_release_status = Column(String, nullable=True)
     last_updated_availability = Column(
         String, nullable=False)
@@ -59,6 +58,7 @@ class Shipment(Base):
     run_date = Column(DateTime, nullable=True)  # Store as DateTime
     voyage_id = Column(Integer, nullable=True)
     terminal_id = Column(String(10), nullable=True)
+    vessel_name = Column(String(25), nullable=True)
     error = Column(Text, nullable=True)
     scrape_status = Column(Enum(ScrapeStatus),
                            default=ScrapeStatus.ASSIGNED.name, nullable=False)
@@ -70,6 +70,7 @@ class Shipment(Base):
     start_scrape_time = Column(DateTime, nullable=True)  # Store as DateTime
     reference_id = Column(String, nullable=True)
     company_code = Column(String, nullable=True)
+    vessel_orig_eta = Column(DateTime, nullable=True)  # Store as DateTime
 
     containers = relationship("ContainerAvailability",
                               back_populates="shipment")
