@@ -21,6 +21,11 @@ class BaseRepository:
             self.session.rollback()
             logger.error(f"Error saving entity: {str(e)}", exc_info=True)
             raise
+        except Exception as e:  # Catch all other exceptions
+            self.session.rollback()
+            logger.error(
+                f"Unexpected error saving entity: {str(e)}", exc_info=True)
+            raise
 
     def update(self, entity: Any, updates: Any):
         try:
@@ -32,6 +37,11 @@ class BaseRepository:
         except SQLAlchemyError as e:
             self.session.rollback()
             logger.error(f"Error updating entity: {str(e)}", exc_info=True)
+            raise
+        except Exception as e:  # Catch all other exceptions
+            self.session.rollback()
+            logger.error(
+                f"Unexpected error updating entity: {str(e)}", exc_info=True)
             raise
 
     def save_or_update(self, entity: Any, unique_field: str, unique_value: Any):
@@ -47,6 +57,11 @@ class BaseRepository:
             logger.error(
                 f"Error saving or updating entity: {str(e)}", exc_info=True)
             raise
+        except Exception as e:  # Catch all other exceptions
+            self.session.rollback()
+            logger.error(
+                f"Unexpected error saving or updating entity: {str(e)}", exc_info=True)
+            raise
 
     def delete(self, entity: Any):
         try:
@@ -57,6 +72,11 @@ class BaseRepository:
             self.session.rollback()
             logger.error(f"Error deleting entity: {str(e)}", exc_info=True)
             raise ValueError(f"Failed to delete entity: {str(e)}")
+        except Exception as e:  # Catch all other exceptions
+            self.session.rollback()
+            logger.error(
+                f"Unexpected error deleting entity: {str(e)}", exc_info=True)
+            raise ValueError(f"Unexpected failure to delete entity: {str(e)}")
 
     def get_by_id(self, entity_id: int) -> Any:
         try:
@@ -64,6 +84,11 @@ class BaseRepository:
         except SQLAlchemyError as e:
             logger.error(
                 f"Error fetching entity by ID: {str(e)}", exc_info=True)
+            self.session.rollback()
+            raise
+        except Exception as e:  # Catch all other exceptions
+            logger.error(
+                f"Unexpected error fetching entity by ID: {str(e)}", exc_info=True)
             self.session.rollback()
             raise
 
@@ -76,6 +101,11 @@ class BaseRepository:
                 f"Error fetching entity by fields: {str(e)}", exc_info=True)
             self.session.rollback()
             raise
+        except Exception as e:  # Catch all other exceptions
+            logger.error(
+                f"Unexpected error fetching entity by fields: {str(e)}", exc_info=True)
+            self.session.rollback()
+            raise
 
     def get_latest(self, order_by_field: str):
         try:
@@ -84,6 +114,11 @@ class BaseRepository:
         except SQLAlchemyError as e:
             logger.error(
                 f"Error fetching latest entity: {str(e)}", exc_info=True)
+            self.session.rollback()
+            raise
+        except Exception as e:  # Catch all other exceptions
+            logger.error(
+                f"Unexpected error fetching latest entity: {str(e)}", exc_info=True)
             self.session.rollback()
             raise
 
@@ -95,5 +130,10 @@ class BaseRepository:
         except SQLAlchemyError as e:
             logger.error(
                 f"Error fetching entity by container number and shipment ID: {str(e)}", exc_info=True)
+            self.session.rollback()
+            raise
+        except Exception as e:  # Catch all other exceptions
+            logger.error(
+                f"Unexpected error fetching entity by container number and shipment ID: {str(e)}", exc_info=True)
             self.session.rollback()
             raise
