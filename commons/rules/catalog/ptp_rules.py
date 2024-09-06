@@ -55,12 +55,6 @@ class PTPRules:
         """Apply the rule for 'Transit State'."""
         self.mapped_data['transit_state'] = self.json_data.get('Status', 'N/A')
 
-    # Adding new rules based on the original `container_data` logic
-
-    def apply_usda_status_rule(self):
-        """Apply the rule for 'USDA Status'."""
-        self.mapped_data['usda_status'] = next(
-            (hold.get('status', 'N/A') for hold in self.json_data.get('shipmentstatus', [{}])[0].get('holdsinfo', [{}]) if hold.get('type') == 'CUSTOMS'), 'N/A')
 
     def apply_last_free_date_rule(self):
         """Apply the rule for 'Last Free Date'."""
@@ -82,6 +76,37 @@ class PTPRules:
         self.mapped_data['carrier_release_status'] = next(
             (hold.get('status', 'N/A') for hold in self.json_data.get('shipmentstatus', [{}])[0].get('holdsinfo', [{}]) if hold.get('type') == 'FREIGHT'), 'N/A')
 
+    def apply_customs_hold_release(self):
+        """Apply the rule for 'Customs Hold and Release'."""
+        if self.json_data.get('customhold_flg', 'False') == 'True':
+            self.mapped_data['CUSTOMS HOLD'] = 'YES'
+            self.mapped_data['CUSTOMS RELEASE'] = 'NO'
+        else:
+            self.mapped_data['CUSTOMS HOLD'] = 'NO'
+            self.mapped_data['CUSTOMS RELEASE'] = 'YES'
+
+    def apply_line_hold_release(self):
+        """Apply the rule for 'Line Hold and Release'."""
+        if self.json_data.get('linehold_flg', 'False') == 'True':
+            self.mapped_data['LINE HOLD'] = 'YES'
+            self.mapped_data['LINE RELEASE'] = 'NO'
+        else:
+            self.mapped_data['LINE HOLD'] = 'NO'
+            self.mapped_data['LINE RELEASE'] = 'YES'
+
+    def apply_other_holds(self):
+        """Apply the rule for 'Other Holds'."""
+        if self.json_data.get('hold_flg', 'False') == 'True':
+            self.mapped_data['OTHER HOLDS'] = 'YES'
+        else:
+            self.mapped_data['OTHER HOLDS'] = 'NO'
+
+    def apply_demurrage_amount(self):
+        """Apply the rule for 'Demurrage Amount'."""
+        confeeinfo = self.json_data.get('confeeinfo', [])
+        self.mapped_data['demurrage_amount'] = confeeinfo[0].get(
+            'fee_amt', 'N/A') if confeeinfo else 'N/A'
+
     def process(self):
         """
         Apply all the rules to the mapped_data object.
@@ -91,9 +116,11 @@ class PTPRules:
         self.apply_holds_rule()
         self.apply_departed_terminal_rule()
         self.apply_transit_state_rule()
-        # Apply new rules
-        self.apply_usda_status_rule()
         self.apply_last_free_date_rule()
         self.apply_location_rule()
         self.apply_custom_release_status_rule()
         self.apply_carrier_release_status_rule()
+        self.apply_customs_hold_release()
+        self.apply_line_hold_release()
+        self.apply_other_holds()
+        self.apply_demurrage_amount()

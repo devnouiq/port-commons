@@ -18,7 +18,6 @@ class ContainerAvailability(Base):
     port = Column(String, nullable=False)
     terminal = Column(String, nullable=False)
     available = Column(String, nullable=False)
-    usda_status = Column(String, nullable=True)
     last_free_day = Column(String, nullable=True)
     location = Column(String, nullable=True)
     custom_release_status = Column(String, nullable=True)
