@@ -37,12 +37,20 @@ class PTPRules:
 
     def apply_holds_rule(self):
         """Apply the rule for 'Holds'."""
-        if self.json_data.get('Customs', '') == 'HOLD' or \
-           self.json_data.get('Freight', '') == 'HOLD' or \
-           self.json_data.get('Hold', '') == 'HOLD':
-            self.mapped_data['holds'] = 'YES'
+        # Combine all hold and release flags to decide if there are any holds
+        custom_hold_flg = self.json_data.get(
+            'customhold_flg', 'False') == 'True'
+        custom_release_flg = self.json_data.get(
+            'release_flg', 'False') == 'True'
+        line_hold_flg = self.json_data.get('linehold_flg', 'False') == 'True'
+        other_hold_flg = self.json_data.get('hold_flg', 'False') == 'True'
+        line_release_flg = self.json_data.get('release_flg', 'False') == 'True'
+
+        # Logic to determine holds status based on your criteria
+        if not custom_hold_flg and custom_release_flg and not line_hold_flg and line_release_flg and not other_hold_flg:
+            self.mapped_data['holds'] = 'NOHOLDS'
         else:
-            self.mapped_data['holds'] = 'NO'
+            self.mapped_data['holds'] = 'HOLDS'
 
     def apply_departed_terminal_rule(self):
         """Apply the rule for 'Departed Terminal'."""
@@ -54,7 +62,6 @@ class PTPRules:
     def apply_transit_state_rule(self):
         """Apply the rule for 'Transit State'."""
         self.mapped_data['transit_state'] = self.json_data.get('Status', 'N/A')
-
 
     def apply_last_free_date_rule(self):
         """Apply the rule for 'Last Free Date'."""
@@ -107,6 +114,16 @@ class PTPRules:
         self.mapped_data['demurrage_amount'] = confeeinfo[0].get(
             'fee_amt', 'N/A') if confeeinfo else 'N/A'
 
+    def apply_type_code_rule(self):
+        """Apply the rule for 'Type Code'."""
+        self.mapped_data['type_code'] = self.json_data.get(
+            'unitinfo', {}).get('unitsztype_cd', 'N/A')
+
+    def apply_line_rule(self):
+        """Apply the rule for 'Line'."""
+        self.mapped_data['line'] = self.json_data.get(
+            'unitinfo', {}).get('ownerline_scac', 'N/A')
+
     def process(self):
         """
         Apply all the rules to the mapped_data object.
@@ -124,3 +141,5 @@ class PTPRules:
         self.apply_line_hold_release()
         self.apply_other_holds()
         self.apply_demurrage_amount()
+        self.apply_type_code_rule()
+        self.apply_line_rule()

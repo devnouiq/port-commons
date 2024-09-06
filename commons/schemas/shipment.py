@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, PrimaryKeyConstraint, Text, Enum
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, PrimaryKeyConstraint, Text, Enum, JSON
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from .base import Base
@@ -32,6 +32,7 @@ class ContainerAvailability(Base):
     charges = Column(String, nullable=True)
     demurage = Column(String, nullable=True)
     line = Column(String, nullable=True)
+    additional_info = Column(JSON, nullable=True)
 
     shipment = relationship("Shipment", back_populates="containers")
 

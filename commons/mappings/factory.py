@@ -35,9 +35,14 @@ class ContainerDataFactory:
         relevant_data = {field: value for field, value in mapped_data.items(
         ) if hasattr(ContainerAvailability, field)}
 
-        # Step 4: Create and return the ContainerAvailability object with the relevant mapped data
+        # Step 4: Capture non-relevant fields in `additional_info`
+        additional_info = {field: value for field,
+                           value in mapped_data.items() if field not in relevant_data}
+
+        # Step 5: Create and return the ContainerAvailability object with the relevant mapped data and additional info
         container_availability = ContainerAvailability(
             shipment_id=shipment_id,
+            additional_info=additional_info,  # Store the additional data
             **relevant_data
         )
 
