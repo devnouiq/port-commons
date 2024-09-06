@@ -1,12 +1,11 @@
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
-from .aws import AWSService
 import os
+from selenium import webdriver
 
 
 class BrowserService:
@@ -105,8 +104,7 @@ class BrowserService:
             self.logger.info(
                 f"Waiting for element to be clickable: {value} for up to {timeout} seconds")
             element = WebDriverWait(self.driver, timeout).until(
-                EC.element_to_be_clickable((by, value))
-            )
+                EC.element_to_be_clickable((by, value)))
             element.click()
             self.logger.info(f"Clicked element: {value}")
         except Exception as e:
@@ -120,8 +118,7 @@ class BrowserService:
             self.logger.info(
                 f"Waiting for element to be visible: {value} for up to {timeout} seconds")
             element = WebDriverWait(self.driver, timeout).until(
-                EC.visibility_of_element_located((by, value))
-            )
+                EC.visibility_of_element_located((by, value)))
             element.send_keys(text)
             self.logger.info(f"Input text '{text}' into element: {value}")
         except Exception as e:
@@ -136,8 +133,7 @@ class BrowserService:
             self.logger.info(
                 f"Waiting for URL to change from {current_url} for up to {timeout} seconds")
             WebDriverWait(self.driver, timeout).until(
-                EC.url_changes(current_url)
-            )
+                EC.url_changes(current_url))
             self.logger.info("URL changed successfully")
         except Exception as e:
             self.logger.error(
@@ -152,4 +148,32 @@ class BrowserService:
                 return cookies
         except Exception as e:
             self.logger.error(f"Failed to get cookies: {e}")
+            raise
+
+    # New wait method
+    def wait_for_element(self, by: By, value: str, condition="visible", timeout=None):
+        try:
+            if timeout is None:
+                timeout = self.timeout
+
+            self.logger.info(
+                f"Waiting for element {value} to become {condition} for up to {timeout} seconds")
+
+            if condition == "visible":
+                WebDriverWait(self.driver, timeout).until(
+                    EC.visibility_of_element_located((by, value)))
+            elif condition == "clickable":
+                WebDriverWait(self.driver, timeout).until(
+                    EC.element_to_be_clickable((by, value)))
+            elif condition == "present":
+                WebDriverWait(self.driver, timeout).until(
+                    EC.presence_of_element_located((by, value)))
+            else:
+                self.logger.error(f"Invalid wait condition: {condition}")
+                raise ValueError("Invalid wait condition")
+
+            self.logger.info(f"Element {value} is {condition} now")
+        except Exception as e:
+            self.logger.error(
+                f"Failed to wait for element {value} to become {condition}: {e}")
             raise
