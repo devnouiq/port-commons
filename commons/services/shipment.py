@@ -47,7 +47,7 @@ class ShipmentService:
 
         try:
 
-            rules.append(SetFailedStatusRule(error_message))
+            rules.append(SetFailedStatusRule())
 
             # Apply any provided rules
             if rules:
