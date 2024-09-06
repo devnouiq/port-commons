@@ -37,7 +37,7 @@ class HandleMissingContainerRule(BusinessRule):
             existing_record = repository.get_by_container_number_and_shipment_id(
                 container_number, shipment_id
             )
-            logger.debug(f"Existing record: {existing_record}")
+            logger.info(f"Existing record: {existing_record}")
 
             if existing_record:
                 if existing_record.scrape_status == ScrapeStatus.ACTIVE:
