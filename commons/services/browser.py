@@ -6,7 +6,7 @@ from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 import os
 from selenium import webdriver
-from commons.services.aws import AWSService
+from .aws import AWSService
 
 
 class BrowserService:
