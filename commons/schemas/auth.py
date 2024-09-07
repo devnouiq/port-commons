@@ -9,3 +9,4 @@ class PTPAuthToken(Base):
     token = Column(String, nullable=False)
     updated_at = Column(DateTime, nullable=False,
                         default=get_current_datetime_in_est)
+    terminal_id = Column(String(40), nullable=True)
