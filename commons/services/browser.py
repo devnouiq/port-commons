@@ -179,21 +179,14 @@ class BrowserService:
                 f"Failed to wait for element {value} to become {condition}: {e}")
             raise
 
-    def execute_script(self, script, *args):
-        """
-        
-        Executes JavaScript in the context of the current page.
-        
-        :param script: The JavaScript code to execute.
-        :param args: Arguments to pass to the JavaScript code.
-        :return: The result of the executed script.
-        """
+    def execute_script(self):
+        #Executes JavaScript in the context of maher login page.
         try:
             if self.driver:
-                self.logger.info(f"Executing script: {script}")
-                result = self.driver.execute_script(script, *args)
-                self.logger.info(f"Script executed successfully, result: {result}")
+                self.logger.info("Executing script")
+                result = self.driver.execute_script("return window.sessionStorage.getItem('token');")
+                self.logger.info("Script executed successfully")
                 return result
         except Exception as e:
-            self.logger.error(f"Failed to execute script: {script} - {e}")
+            self.logger.error(f"Failed to execute script: {e}")
             raise
