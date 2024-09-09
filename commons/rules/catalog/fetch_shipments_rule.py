@@ -6,6 +6,7 @@ from sqlalchemy import func, or_
 from commons.schemas.shipment import Shipment
 from typing import Dict, Any
 from commons.utils.logger import get_logger
+import uuid
 
 logger = get_logger()
 
@@ -33,7 +34,7 @@ class FetchShipmentsRule(BusinessRule):
             logger.info(f"Applying FetchShipmentsRule for run_id: {run_id}")
 
         # Check if a specific shipment ID is provided in the environment variable
-        shipment_id = os.getenv("SHIPMENT_ID")
+        shipment_id = uuid.UUID(os.getenv("SHIPMENT_ID"))
         logger.info(f"Shipment ID from environment variable: {shipment_id}")
         if shipment_id:
             logger.info(
