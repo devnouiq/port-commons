@@ -181,6 +181,7 @@ class BrowserService:
 
     def execute_script(self, script, *args):
         """
+        
         Executes JavaScript in the context of the current page.
         
         :param script: The JavaScript code to execute.
