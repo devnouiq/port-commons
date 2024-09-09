@@ -193,7 +193,6 @@ class BrowserService:
                 self.logger.info(f"Executing script: {script}")
                 result = self.driver.execute_script(script, *args)
                 time.sleep(4)
-
                 self.logger.info(f"Script executed successfully, result: {result}")
                 return result
         except Exception as e:
