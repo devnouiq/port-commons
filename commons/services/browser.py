@@ -178,3 +178,21 @@ class BrowserService:
             self.logger.error(
                 f"Failed to wait for element {value} to become {condition}: {e}")
             raise
+
+    def execute_script(self, script, *args):
+        """
+        Executes JavaScript in the context of the current page.
+        
+        :param script: The JavaScript code to execute.
+        :param args: Arguments to pass to the JavaScript code.
+        :return: The result of the executed script.
+        """
+        try:
+            if self.driver:
+                self.logger.info(f"Executing script: {script}")
+                result = self.driver.execute_script(script, *args)
+                self.logger.info(f"Script executed successfully, result: {result}")
+                return result
+        except Exception as e:
+            self.logger.error(f"Failed to execute script: {script} - {e}")
+            raise
