@@ -63,10 +63,11 @@ class Shipment(Base):
     scrape_status = Column(Enum(ScrapeStatus),
                            default=ScrapeStatus.ASSIGNED.name, nullable=False)
     submitted_at = Column(DateTime, nullable=True,
-                          default=get_current_datetime_in_est)  # Store as DateTime
+                          default=get_current_datetime_in_est())  # Store as DateTime
     frequency = Column(Integer, nullable=True, default=4)
     last_scraped_time = Column(DateTime, nullable=True)  # Store as DateTime
-    next_scrape_time = Column(DateTime, nullable=True)  # Store as DateTime
+    next_scrape_time = Column(
+        DateTime, nullable=True, default=get_current_datetime_in_est())  # Store as DateTime
     start_scrape_time = Column(DateTime, nullable=True)  # Store as DateTime
     reference_id = Column(String, nullable=True)
     company_code = Column(String, nullable=True)
