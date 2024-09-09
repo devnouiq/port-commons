@@ -1,3 +1,4 @@
+import time
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -179,14 +180,22 @@ class BrowserService:
                 f"Failed to wait for element {value} to become {condition}: {e}")
             raise
 
-    def execute_script(self, script):
-        #Executes JavaScript in the context of maher login page.
+    def execute_script(self, script, *args):
+        """
+        Executes JavaScript in the context of the current page.
+        
+        :param script: The JavaScript code to execute.
+        :param args: Arguments to pass to the JavaScript code.
+        :return: The result of the executed script.
+        """
         try:
             if self.driver:
-                self.logger.info("Executing script")
-                result = self.driver.execute_script(script)
-                self.logger.info("Script executed successfully")
+                self.logger.info(f"Executing script: {script}")
+                result = self.driver.execute_script(script, *args)
+                time.sleep(4)
+
+                self.logger.info(f"Script executed successfully, result: {result}")
                 return result
         except Exception as e:
-            self.logger.error(f"Failed to execute script: {e}")
+            self.logger.error(f"Failed to execute script: {script} - {e}")
             raise
