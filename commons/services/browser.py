@@ -1,3 +1,4 @@
+import time
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -181,7 +182,6 @@ class BrowserService:
 
     def execute_script(self, script, *args):
         """
-        
         Executes JavaScript in the context of the current page.
         
         :param script: The JavaScript code to execute.
@@ -192,6 +192,7 @@ class BrowserService:
             if self.driver:
                 self.logger.info(f"Executing script: {script}")
                 result = self.driver.execute_script(script, *args)
+                time.sleep(4)
                 self.logger.info(f"Script executed successfully, result: {result}")
                 return result
         except Exception as e:
