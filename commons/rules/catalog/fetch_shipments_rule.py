@@ -34,8 +34,17 @@ class FetchShipmentsRule(BusinessRule):
             logger.info(f"Applying FetchShipmentsRule for run_id: {run_id}")
 
         # Check if a specific shipment ID is provided in the environment variable
-        shipment_id = uuid.UUID(os.getenv("SHIPMENT_ID"))
-        logger.info(f"Shipment ID from environment variable: {shipment_id}")
+        shipment_id = None
+        try:
+            shipment_id_str = os.getenv("SHIPMENT_ID")
+            if shipment_id_str:
+                shipment_id = uuid.UUID(shipment_id_str)
+                logger.info(
+                    f"Shipment ID from environment variable: {shipment_id}")
+        except (ValueError, TypeError) as e:
+            logger.error(f"Invalid SHIPMENT_ID environment variable: {e}")
+            shipment_id = None
+
         if shipment_id:
             logger.info(
                 f"Fetching shipment with ID {shipment_id} for trigger use case")
