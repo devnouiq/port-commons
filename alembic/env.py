@@ -10,6 +10,7 @@ from commons.schemas.base import Base
 from commons.schemas.shipment import Shipment
 from commons.schemas.shipment import ContainerAvailability
 from commons.schemas.scraper import ScraperMetadata
+from commons.schemas.auth import PTPAuthToken
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
