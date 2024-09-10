@@ -20,7 +20,6 @@ class FetchShipmentsRule(BusinessRule):
         """
         session = context.get('session')
         scraper_metadata = context.get('scraper_metadata')
-        run_id = context.get('run_id', None)
 
         if not session or not scraper_metadata:
             raise ValueError(
@@ -28,10 +27,6 @@ class FetchShipmentsRule(BusinessRule):
 
         terminal_id = scraper_metadata.terminal_id
         current_time_est = get_current_datetime_in_est()
-
-        # Log the run_id if available
-        if run_id:
-            logger.info(f"Applying FetchShipmentsRule for run_id: {run_id}")
 
         # Check if a specific shipment ID is provided in the environment variable
         shipment_id = None
