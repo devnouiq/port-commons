@@ -13,7 +13,7 @@ class PTPRules:
 
     def apply_available_rule(self):
         """Apply the rule for 'Available'."""
-        status = self.json_data.get('Status', '')
+        status = self.json_data.get('drayunitstatus_desc', '')
         if status == 'ON VESSEL':
             self.mapped_data['available'] = 'NO'
         elif status == 'IN YARD':
