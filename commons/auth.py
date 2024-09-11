@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from commons.schemas.auth import PTPAuthToken
 from commons.utils.logger import get_logger
 from commons.repository import BaseRepository
+from typing import Any
 
 logger = get_logger()
 
