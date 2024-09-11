@@ -35,8 +35,7 @@ class ContainerAvailability(Base):
 
     def __repr__(self):
         return (f"<ContainerAvailability(container_number='{self.container_number}', "
-                f"available='{self.available}', "
-                f"last_updated_availability='{self.last_updated_availability}')>")
+                f"available='{self.available}")
 
     # Define composite primary key
     __table_args__ = (

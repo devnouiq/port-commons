@@ -17,7 +17,6 @@ class ContainerDataModel(BaseModel):
     vessel_name: Optional[str] = None
     yard_terminal_release_status: Optional[str] = None
     last_free_date: Optional[str] = None
-    last_updated_availability: Optional[str] = None
     shipment_id: Optional[int] = None
 
     class Config:
