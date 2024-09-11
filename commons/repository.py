@@ -137,3 +137,19 @@ class BaseRepository:
                 f"Unexpected error fetching entity by container number and shipment ID: {str(e)}", exc_info=True)
             self.session.rollback()
             raise
+
+    def get_latest_by_field(self, field_name: str, field_value: Any):
+        try:
+            logger.info(
+                f"Fetching latest entity where {field_name}={field_value}")
+            return self.session.query(self.model).filter_by(**{field_name: field_value}).order_by(self.model.updated_at.desc()).first()
+        except SQLAlchemyError as e:
+            logger.error(
+                f"Error fetching latest entity by {field_name}: {str(e)}", exc_info=True)
+            self.session.rollback()
+            raise
+        except Exception as e:
+            logger.error(
+                f"Unexpected error fetching latest entity by {field_name}: {str(e)}", exc_info=True)
+            self.session.rollback()
+            raise
