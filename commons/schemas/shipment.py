@@ -13,7 +13,6 @@ class ContainerAvailability(Base):
     shipment_id = Column(UUID(as_uuid=True), ForeignKey(
         "shipments.shipment_id"), nullable=False)
     container_number = Column(String, nullable=False)
-
     vessel_eta = Column(String, nullable=True)
     port = Column(String, nullable=False)
     terminal = Column(String, nullable=False)
