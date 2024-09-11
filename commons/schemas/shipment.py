@@ -24,8 +24,6 @@ class ContainerAvailability(Base):
     carrier_release_status = Column(String, nullable=True)
     demurrage_amount = Column(String, nullable=True)
     yard_terminal_release_status = Column(String, nullable=True)
-    last_updated_availability = Column(
-        String, nullable=False)  # Store as DateTime
     type_code = Column(String, nullable=True)
     departed_terminal = Column(String, nullable=True)
     holds = Column(String, nullable=True)
