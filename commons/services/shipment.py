@@ -85,7 +85,6 @@ class ShipmentService:
         Process a shipment and optionally container availability, marking them as 'active' before applying rules.
         """
         shipment = context.get('shipment')
-        existing_container = context.get('container')
         container_availability = context.get('container_availability')
 
         rules.append(SetActiveStatusRule())
@@ -154,27 +153,3 @@ class ShipmentService:
             except Exception as e:
                 logger.error(
                     f"Failed to log error for shipment ID {shipment.shipment_id}: {str(e)}", exc_info=True)
-
-    def fetch_existing_shipment_and_container(self, container_availability):
-        """
-        Fetch existing shipments by shipment_ids.
-        """
-        try:
-            # Fetch existing record by container number and shipment ID
-            existing_shipment = self.shipment_repo.get_by_container_number_and_shipment_id(
-                container_number=container_availability.container_number,
-                shipment_id=container_availability.shipment_id
-            )
-
-            # Fetch existing container availability record
-            existing_container = self.container_repo.get_by_container_number_and_shipment_id(
-                container_number=container_availability.container_number,
-                shipment_id=container_availability.shipment_id
-            )
-
-            return existing_shipment, existing_container
-
-        except Exception as e:
-            logger.error(
-                f"Error fetching shipment and container: {str(e)}", exc_info=True)
-            raise
