@@ -132,7 +132,7 @@ class ShipmentService:
                 logger.info(
                     f"Marking shipment ID {shipment.shipment_id} and container {shipment.container_number} 'In Progress'")
                 context = {"shipment": shipment}
-                self.process(context)
+                self.process_in_progress(context)
                 logger.info(
                     f"Updated status to 'In Progress' for shipment ID {shipment.shipment_id}")
             except Exception as e:
