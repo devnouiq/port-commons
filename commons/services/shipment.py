@@ -20,26 +20,40 @@ class ShipmentService:
     def process(self, context: Dict[str, Any], rules: Optional[List[Any]] = []):
         """
         Generalized process method that handles shipment processing based on shipment status.
-        Based on the scrape_status of the shipment, it will call process_active, process_failed, or other methods.
+        After all rules are applied, if the shipment's status is still 'IN_PROGRESS', it will be marked 'ACTIVE'.
         """
         shipment = context.get('shipment')
-        # Assuming the shipment has a 'scrape_status' attribute
-        scrape_status = shipment.scrape_status
-        logger.info(
-            f"Processing shipment ID {shipment.shipment_id} with scrape status '{scrape_status}'")
+        container_availability = context.get('container_availability')
 
-        # Call appropriate method based on shipment scrape_status
-        if scrape_status == ScrapeStatus.ACTIVE:
-            self.process_active(context, rules)
-        elif scrape_status == ScrapeStatus.FAILED:
-            self.process_failed(context, rules)
-        elif scrape_status == ScrapeStatus.IN_PROGRESS:
-            self.process_in_progress(context, rules)
-        elif scrape_status == ScrapeStatus.STOPPED:
-            self.process_stopped(context, rules)
-        else:
-            logger.warning(
-                f"Unknown scrape status '{scrape_status}' for shipment ID {shipment.shipment_id}")
+        try:
+            # Apply any business rules
+            for rule in rules:
+                rule.apply(context)
+
+            # Check if the status is still 'IN_PROGRESS'
+            if shipment.scrape_status == ScrapeStatus.IN_PROGRESS:
+                # No errors or special conditions occurred, mark as ACTIVE
+                shipment.scrape_status = ScrapeStatus.ACTIVE
+                logger.info(
+                    f"Setting shipment ID {shipment.shipment_id} to ACTIVE after successful processing")
+
+            # Save the updated shipment status
+            self.shipment_repo.save_or_update(
+                shipment, "shipment_id", shipment.shipment_id)
+
+            # If container availability data is present, save it
+            if container_availability and self.container_repo:
+                container_availability.shipment_id = shipment.shipment_id
+                self.container_repo.save_or_update(
+                    container_availability, "container_number", container_availability.container_number)
+
+        except Exception as e:
+            logger.error(
+                f"Error processing shipment ID {shipment.shipment_id}: {str(e)}", exc_info=True)
+            shipment.scrape_status = ScrapeStatus.FAILED
+            self.shipment_repo.save_or_update(
+                shipment, "shipment_id", shipment.shipment_id)
+            raise
 
     def process_in_progress(self, context: Dict[str, Any], rules: Optional[List[Any]] = []):
         """
