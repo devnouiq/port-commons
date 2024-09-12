@@ -12,7 +12,7 @@ class ShipmentDataFactory:
         self.rules = rules or []
         self.config = config or {}
 
-    def apply_rules(self, row: Dict[str, str], shipment: Any) -> None:
+    def create_shipment_data(self, row: Dict[str, str], shipment: Any) -> None:
         """
         Apply rules and update specific fields in the existing Shipment object based on config flags.
         :param row: A dictionary representing a row of data from the scraper.
