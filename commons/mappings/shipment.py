@@ -10,7 +10,6 @@ class ShipmentDataFactory:
         :param config: A dictionary with configuration flags to determine which rules to apply.
         """
         self.rules = rules or []
-        self.config = config or {}
 
     def create_shipment_data(self, row: Dict[str, str], shipment: Any) -> None:
         """
@@ -21,6 +20,6 @@ class ShipmentDataFactory:
         # Step 1: Apply the custom rules to compute or override values based on config
         for rule_class in self.rules:
             rule_instance = rule_class(
-                json_data=row, shipment=shipment, config=self.config
+                json_data=row, shipment=shipment
             )
             rule_instance.process()
