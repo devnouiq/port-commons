@@ -51,7 +51,6 @@ class Shipment(Base):
     container_number = Column(String(30), nullable=True)
     master_bol_number = Column(String(30), nullable=True)
     house_bol_number = Column(String(30), nullable=True)
-    run_date = Column(DateTime, nullable=True)  # Store as DateTime
     voyage_id = Column(Integer, nullable=True)
     terminal_id = Column(String(40), nullable=True)
     vessel_name = Column(String(25), nullable=True)
