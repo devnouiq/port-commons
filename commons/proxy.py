@@ -11,9 +11,10 @@ PROXY_LIST = [
 
 def get_random_proxy():
     """
-    Returns a random proxy from the PROXY_LIST.
+    Returns a random proxy from the PROXY_LIST
     """
+    proxy = random.choice(PROXY_LIST)
     return {
-        "http": random.choice(PROXY_LIST),
-        "https": random.choice(PROXY_LIST)
+        "http": proxy,
+        "https": proxy
     }
