@@ -2,7 +2,7 @@ import os
 from commons.rules.engine import BusinessRule
 from commons.enums import ScrapeStatus
 from commons.utils.date import get_current_datetime_in_est
-from sqlalchemy import func, or_
+from sqlalchemy import func, or_, and_
 from commons.schemas.shipment import Shipment
 from typing import Dict, Any
 from commons.utils.logger import get_logger
@@ -59,13 +59,26 @@ class FetchShipmentsRule(BusinessRule):
             shipments = session.query(Shipment).filter(
                 Shipment.terminal_id == terminal_id,
                 or_(
-                    Shipment.scrape_status == ScrapeStatus.ASSIGNED.name,
-                    Shipment.scrape_status == ScrapeStatus.ACTIVE.name
-                ),
-                Shipment.start_scrape_time <= current_time_est,
-                Shipment.start_scrape_time <= Shipment.next_scrape_time,
-                (func.extract('epoch', current_time_est -
-                 Shipment.last_scraped_time) / 3600) >= Shipment.frequency,
+                    # Existing criteria
+                    and_(
+                        or_(
+                            Shipment.scrape_status == ScrapeStatus.ASSIGNED.name,
+                            Shipment.scrape_status == ScrapeStatus.ACTIVE.name
+                        ),
+                        Shipment.start_scrape_time <= current_time_est,
+                        Shipment.start_scrape_time <= Shipment.next_scrape_time,
+                        (func.extract('epoch', current_time_est -
+                                      Shipment.last_scraped_time) / 3600) >= Shipment.frequency,
+                    ),
+                    # Additional criteria for STOPPED or FAILED shipments with error containing "Connection aborted"
+                    and_(
+                        or_(
+                            Shipment.scrape_status == ScrapeStatus.STOPPED.name,
+                            Shipment.scrape_status == ScrapeStatus.FAILED.name
+                        ),
+                        Shipment.error.ilike('%Connection aborted%')
+                    )
+                )
             ).all()
 
             # Store the fetched shipments in the context for further processing
