@@ -59,7 +59,6 @@ class FetchShipmentsRule(BusinessRule):
             shipments = session.query(Shipment).filter(
                 Shipment.terminal_id == terminal_id,
                 or_(
-                    # Existing criteria
                     and_(
                         or_(
                             Shipment.scrape_status == ScrapeStatus.ASSIGNED.name,
@@ -67,19 +66,11 @@ class FetchShipmentsRule(BusinessRule):
                         ),
                         Shipment.start_scrape_time <= current_time_est,
                         Shipment.start_scrape_time <= Shipment.next_scrape_time,
-                        (func.extract('epoch', current_time_est -
-                                      Shipment.last_scraped_time) / 3600) >= Shipment.frequency,
+                        (func.extract('epoch', current_time_est - Shipment.last_scraped_time) / 3600) >= Shipment.frequency
                     ),
-                    # Additional criteria for STOPPED or FAILED shipments with error containing "Connection aborted"
-                    and_(
-                        or_(
-                            Shipment.scrape_status == ScrapeStatus.STOPPED.name,
-                            Shipment.scrape_status == ScrapeStatus.FAILED.name
-                        ),
-                        or_(
-                            Shipment.error.ilike('%Connection aborted%'),
-                            Shipment.error.ilike('%Server Error%')
-                        )
+                    or_(
+                        Shipment.scrape_status == ScrapeStatus.IN_PROGRESS.name,
+                        Shipment.scrape_status == ScrapeStatus.FAILED.name
                     )
                 )
             ).all()
