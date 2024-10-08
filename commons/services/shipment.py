@@ -26,6 +26,10 @@ class ShipmentService:
         container_availability = context.get('container_availability')
 
         try:
+            # Assign run_id to the shipment
+            logger_instance = get_logger()  # Fetch the logger instance
+            shipment.run_id = logger_instance.run_id
+
             # Apply any business rules
             for rule in rules:
                 rule.apply(context)
