@@ -76,7 +76,10 @@ class FetchShipmentsRule(BusinessRule):
                             Shipment.scrape_status == ScrapeStatus.STOPPED.name,
                             Shipment.scrape_status == ScrapeStatus.FAILED.name
                         ),
-                        Shipment.error.ilike('%Connection aborted%')
+                        or_(
+                            Shipment.error.ilike('%Connection aborted%'),
+                            Shipment.error.ilike('%Server Error%')
+                        )
                     )
                 )
             ).all()
