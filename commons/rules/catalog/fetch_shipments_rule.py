@@ -69,7 +69,6 @@ class FetchShipmentsRule(BusinessRule):
                         (func.extract('epoch', current_time_est - Shipment.last_scraped_time) / 3600) >= Shipment.frequency
                     ),
                     or_(
-                        Shipment.scrape_status == ScrapeStatus.IN_PROGRESS.name,
                         Shipment.scrape_status == ScrapeStatus.FAILED.name
                     )
                 )
