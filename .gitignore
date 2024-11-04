@@ -162,3 +162,4 @@ cython_debug/
 #.idea/
 
 port_venv
+scrapper-db-backup.dump
