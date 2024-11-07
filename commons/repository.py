@@ -32,22 +32,19 @@ class BaseRepository:
             logger.info(f"Updating entity: {entity}")
             for key, value in updates.__dict__.items():
                 if key != '_sa_instance_state':  # Skip internal SQLAlchemy state
-                    # Only update last_free_day if the new value is not NULL
-                    if key == 'last_free_day' and value is None:
-                        logger.info(f"Skipping update for last_free_day as the new value is NULL")
-                        continue
-                    setattr(entity, key, value)
+                    # Only update if the new value is not None or blank
+                    if value not in [None, '']:
+                        setattr(entity, key, value)
             self.session.commit()  # Commit after update
         except SQLAlchemyError as e:
             self.session.rollback()
             logger.error(f"Error updating entity: {str(e)}", exc_info=True)
             raise
-        except Exception as e:  # Catch all other exceptions
+        except Exception as e:
             self.session.rollback()
-            logger.error(
-                f"Unexpected error updating entity: {str(e)}", exc_info=True)
+            logger.error(f"Unexpected error updating entity: {str(e)}", exc_info=True)
             raise
-
+        
     def save_or_update(self, entity: Any, unique_field: str, unique_value: Any):
         try:
             existing_entity = self.session.query(self.model).filter_by(
