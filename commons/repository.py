@@ -32,6 +32,10 @@ class BaseRepository:
             logger.info(f"Updating entity: {entity}")
             for key, value in updates.__dict__.items():
                 if key != '_sa_instance_state':  # Skip internal SQLAlchemy state
+                    # Only update last_free_day if the new value is not NULL
+                    if key == 'last_free_day' and value is None:
+                        logger.info(f"Skipping update for last_free_day as the new value is NULL")
+                        continue
                     setattr(entity, key, value)
             self.session.commit()  # Commit after update
         except SQLAlchemyError as e:
