@@ -6,12 +6,11 @@ from commons.utils.date import get_current_datetime_in_est
 from commons.enums import ScrapeStatus
 import uuid
 
-
 class ContainerAvailability(Base):
     __tablename__ = "container_status_table"
 
     shipment_id = Column(UUID(as_uuid=True), ForeignKey(
-        "shipments.shipment_id"), nullable=False)
+        "shipments.shipment_id", ondelete="CASCADE"), nullable=False)
     container_number = Column(String, nullable=False)
     vessel_eta = Column(String, nullable=True)
     port = Column(String, nullable=False)
@@ -35,13 +34,12 @@ class ContainerAvailability(Base):
 
     def __repr__(self):
         return (f"<ContainerAvailability(container_number='{self.container_number}', "
-                f"available='{self.available}")
+                f"available='{self.available}')")
 
     # Define composite primary key
     __table_args__ = (
         PrimaryKeyConstraint('shipment_id', 'container_number'),
     )
-
 
 class Shipment(Base):
     __tablename__ = 'shipments'
@@ -70,7 +68,8 @@ class Shipment(Base):
     run_id = Column(UUID(as_uuid=True), nullable=True)
 
     containers = relationship("ContainerAvailability",
-                              back_populates="shipment")
+                              back_populates="shipment",
+                              cascade="all, delete-orphan")
 
     def __repr__(self):
         return (f"<Shipment(shipment_id={self.shipment_id}, "
