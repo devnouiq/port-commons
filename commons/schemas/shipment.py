@@ -29,6 +29,7 @@ class ContainerAvailability(Base):
     demurage = Column(String, nullable=True)
     line = Column(String, nullable=True)
     additional_info = Column(JSON, nullable=True)
+    delivery_date = Column(String, nullable=True)
 
     shipment = relationship("Shipment", back_populates="containers")
 
