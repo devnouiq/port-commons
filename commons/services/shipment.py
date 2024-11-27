@@ -7,28 +7,69 @@ from ..rules.catalog.set_status_in_failed_rule import SetFailedStatusRule
 from ..rules.catalog.set_status_in_progress_rule import SetInProgressStatusRule
 # Assuming ScrapeStatus is in commons.enums
 from commons.enums import ScrapeStatus
+from ..schemas.shipment_log import ShipmentLog
+import datetime
+from commons.utils.date import get_current_datetime_in_est
+from enum import Enum
+import uuid
+
 
 logger = get_logger()
 
+# TODO: figure out a way to use previous data for logging
 
 class ShipmentService:
-    def __init__(self, session: Session, shipment_repo: BaseRepository, container_repo: Optional[BaseRepository] = None):
+    def __init__(self, session: Session, shipment_repo: BaseRepository, container_repo: Optional[BaseRepository] = None, shipment_log_repo: Optional[BaseRepository] = None):
         self.session = session
         self.shipment_repo = shipment_repo
         self.container_repo = container_repo
+        self.shipment_log_repo = shipment_log_repo
+
+    def get_model_data(self, model):
+        data = {k: v for k, v in model.__dict__.items() if not k.startswith('_')}
+        json_data = self.make_json_serializable(data)
+        return json_data
+    
+    def make_json_serializable(self, data):
+        if isinstance(data, dict):
+            return {k: self.make_json_serializable(v) for k, v in data.items()}
+        elif isinstance(data, list):
+            return [self.make_json_serializable(v) for v in data]
+        elif isinstance(data, datetime.datetime):
+            return data.isoformat()
+        elif isinstance(data, datetime.date):
+            return data.isoformat()
+        elif isinstance(data, Enum):
+            return data.value
+        elif isinstance(data, uuid.UUID):  # Add this condition
+            return str(data)
+        else:
+            return data
+
+    def create_shipment_log(self, shipment, previous_data, new_data):
+        shipment_log = ShipmentLog(
+            shipment_id=shipment.shipment_id,
+            scrape_status=shipment.scrape_status,
+            scraped_at=get_current_datetime_in_est(),
+            previous_data=previous_data,
+            new_data=new_data
+        )
+        self.shipment_log_repo.save(shipment_log)
 
     def process(self, context: Dict[str, Any], rules: Optional[List[Any]] = []):
-        """
-        Generalized process method that handles shipment processing based on shipment status.
-        After all rules are applied, if the shipment's status is still 'IN_PROGRESS', it will be marked 'ACTIVE'.
-        """
         shipment = context.get('shipment')
         container_availability = context.get('container_availability')
+        previous_data = None
+        new_data = None
 
         try:
             # Assign run_id to the shipment
             logger_instance = get_logger()  # Fetch the logger instance
             shipment.run_id = logger_instance.run_id
+
+            # # After storing previous data
+            # previous_data = self.get_model_data(shipment)
+            # logger.debug(f"Previous data for shipment {shipment.shipment_id}: {previous_data}")
 
             # Apply any business rules
             for rule in rules:
@@ -40,10 +81,18 @@ class ShipmentService:
                 shipment.scrape_status = ScrapeStatus.ACTIVE
                 logger.info(
                     f"Setting shipment ID {shipment.shipment_id} to ACTIVE after successful processing")
+            
+            new_data = self.get_model_data(shipment)
+            logger.debug(f"New data for shipment {shipment.shipment_id}: {new_data}")
 
             # Save the updated shipment status
             self.shipment_repo.save_or_update(
                 shipment, "shipment_id", shipment.shipment_id)
+
+            # Create ShipmentLog entry
+            self.create_shipment_log(shipment, previous_data, new_data)
+
+            logger.info(f"Setting shipment ID {shipment.shipment_id} logs")
 
             # If container availability data is present, save it
             if container_availability and self.container_repo:
@@ -57,88 +106,161 @@ class ShipmentService:
             shipment.scrape_status = ScrapeStatus.FAILED
             self.shipment_repo.save_or_update(
                 shipment, "shipment_id", shipment.shipment_id)
+
+            # Store new data for logging
+            new_data = self.get_model_data(shipment)
+
+            # Create ShipmentLog entry
+            self.create_shipment_log(shipment, previous_data, new_data)
             raise
 
     def process_in_progress(self, context: Dict[str, Any], rules: Optional[List[Any]] = []):
         """
-        Mark a shipment as 'in progress' and apply any associated rules.
+        Mark a shipment as 'IN_PROGRESS' and apply any associated rules.
         """
         shipment = context.get('shipment')
-        rules.append(SetInProgressStatusRule())
+        previous_data = None
+        new_data = None
 
         try:
+            # Capture previous data
+            # previous_data = self.get_model_data(shipment)
+            # logger.debug(f"Previous data for shipment {shipment.shipment_id}: {previous_data}")
+
+            rules.append(SetInProgressStatusRule())
+
+            # Apply rules
             for rule in rules:
                 rule.apply(context)
 
             # Set scrape status to IN_PROGRESS
             shipment.scrape_status = ScrapeStatus.IN_PROGRESS
+
+            new_data = self.get_model_data(shipment)
+            logger.debug(f"New data for shipment {shipment.shipment_id}: {new_data}")
+
+            # Save the updated shipment
             self.shipment_repo.save_or_update(
                 shipment, "shipment_id", shipment.shipment_id)
+
+            # Create ShipmentLog entry
+            self.create_shipment_log(shipment, previous_data, new_data)
+
         except Exception as e:
             logger.error(
-                f"Error processing in-progress shipment: {str(e)}", exc_info=True)
+                f"Error processing in-progress shipment ID {shipment.shipment_id}: {str(e)}")
             raise
+
 
     def process_failed(self, context: Dict[str, Any], rules: Optional[List[Any]] = []):
         """
-        Mark a shipment as 'failed' and apply any associated rules.
+        Mark a shipment as 'FAILED' and apply any associated rules.
         """
         shipment = context.get('shipment')
-        rules.append(SetFailedStatusRule())
+        previous_data = None
+        new_data = None
 
         try:
+            # Capture previous data
+            # previous_data = self.get_model_data(shipment)
+            # logger.debug(f"Previous data for shipment {shipment.shipment_id}: {previous_data}")
+
+            rules.append(SetFailedStatusRule())
+
+            # Apply rules
             for rule in rules:
                 rule.apply(context)
 
-            shipment.scrape_status = ScrapeStatus.FAILED  # Set scrape status to FAILED
+            # Set scrape status to FAILED
+            shipment.scrape_status = ScrapeStatus.FAILED
+            new_data = self.get_model_data(shipment)
+            logger.debug(f"New data for shipment {shipment.shipment_id}: {new_data}")
+
+            # Save the updated shipment
             self.shipment_repo.save_or_update(
                 shipment, "shipment_id", shipment.shipment_id)
+
+            # Create ShipmentLog entry
+            self.create_shipment_log(shipment, previous_data, new_data)
+
         except Exception as e:
             logger.error(
-                f"Error processing failed shipment: {str(e)}", exc_info=True)
+                f"Error processing failed shipment ID {shipment.shipment_id}: {str(e)}")
             raise
 
     def process_active(self, context: Dict[str, Any], rules: Optional[List[Any]] = []):
         """
-        Process a shipment and optionally container availability, marking them as 'active' before applying rules.
+        Process a shipment and optionally container availability, marking them as 'ACTIVE' before applying rules.
         """
         shipment = context.get('shipment')
         container_availability = context.get('container_availability')
-
-        rules.append(SetActiveStatusRule())
+        previous_data = None
+        new_data = None
 
         try:
+            # Capture previous data
+            # previous_data = self.get_model_data(shipment)
+            # logger.debug(f"Previous data for shipment {shipment.shipment_id}: {previous_data}")
+
+            rules.append(SetActiveStatusRule())
+
+            # Apply rules
             for rule in rules:
                 rule.apply(context)
 
-            shipment.scrape_status = ScrapeStatus.ACTIVE  # Set scrape status to ACTIVE
+            # Set scrape status to ACTIVE
+            shipment.scrape_status = ScrapeStatus.ACTIVE
+            new_data = self.get_model_data(shipment)
+            logger.debug(f"New data for shipment {shipment.shipment_id}: {new_data}")
+
+            # Save the updated shipment
             self.shipment_repo.save_or_update(
                 shipment, "shipment_id", shipment.shipment_id)
 
+            # Save container availability if present
             if container_availability and self.container_repo:
                 container_availability.shipment_id = shipment.shipment_id
                 self.container_repo.save_or_update(
                     container_availability, "container_number", container_availability.container_number)
 
+            # Create ShipmentLog entry
+            self.create_shipment_log(shipment, previous_data, new_data)
+
         except Exception as e:
             logger.error(
-                f"Error processing active shipment: {str(e)}", exc_info=True)
+                f"Error processing active shipment ID {shipment.shipment_id}: {str(e)}")
             raise
 
     def process_stopped(self, context: Dict[str, Any], rules: Optional[List[Any]] = []):
         """
-        Process a shipment marked as 'stopped'. This method can be extended with custom logic.
+        Process a shipment marked as 'STOPPED'. This method can be extended with custom logic.
         """
         shipment = context.get('shipment')
-        logger.info(f"Processing stopped shipment ID {shipment.shipment_id}")
+        previous_data = None
+        new_data = None
 
         try:
-            shipment.scrape_status = ScrapeStatus.STOPPED  # Set scrape status to STOPPED
+            # Capture previous data
+            # previous_data = self.get_model_data(shipment)
+            # logger.debug(f"Previous data for shipment {shipment.shipment_id}: {previous_data}")
+
+            # Set scrape status to STOPPED
+            shipment.scrape_status = ScrapeStatus.STOPPED
+            new_data = self.get_model_data(shipment)
+            logger.debug(f"New data for shipment {shipment.shipment_id}: {new_data}")
+
+            # Save the updated shipment
             self.shipment_repo.save_or_update(
                 shipment, "shipment_id", shipment.shipment_id)
+            
+            # Create ShipmentLog entry
+            self.create_shipment_log(shipment, previous_data, new_data)
+
+            logger.info(f"Processed stopped shipment ID {shipment.shipment_id}")
+
         except Exception as e:
             logger.error(
-                f"Error processing stopped shipment: {str(e)}", exc_info=True)
+                f"Error processing stopped shipment ID {shipment.shipment_id}: {str(e)}")
             raise
 
     def mark_shipments_in_progress(self, shipments):
