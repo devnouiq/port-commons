@@ -71,6 +71,9 @@ class Shipment(Base):
     containers = relationship("ContainerAvailability",
                               back_populates="shipment",
                               cascade="all, delete-orphan")
+    
+    # Add the logs relationship
+    logs = relationship("ShipmentLog", back_populates="shipment", cascade="all, delete-orphan")
 
     def __repr__(self):
         return (f"<Shipment(shipment_id={self.shipment_id}, "
