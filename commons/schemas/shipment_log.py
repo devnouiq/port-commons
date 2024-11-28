@@ -5,7 +5,6 @@ from sqlalchemy.orm import relationship
 from .base import Base
 from commons.enums import ScrapeStatus
 
-
 class ShipmentLog(Base):
     __tablename__ = "shipment_logs"
 
@@ -17,12 +16,8 @@ class ShipmentLog(Base):
     scrape_status = Column(Enum(ScrapeStatus), nullable=True)
     # Timestamp for the event, default to current time
     scraped_at = Column(DateTime, nullable=False)
-    # (Optional) Snapshot of data before update
-    previous_data = Column(JSON, nullable=True)
     # (Optional) Snapshot of data after update
     new_data = Column(JSON, nullable=True)
-
-    retry_count = Column(Integer, nullable=True)
 
     # Establish relationship with Shipment
     shipment = relationship("Shipment", back_populates="logs")

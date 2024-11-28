@@ -16,8 +16,6 @@ import uuid
 
 logger = get_logger()
 
-# TODO: figure out a way to use previous data for logging
-
 class ShipmentService:
     def __init__(self, session: Session, shipment_repo: BaseRepository, container_repo: Optional[BaseRepository] = None, shipment_log_repo: Optional[BaseRepository] = None):
         self.session = session
@@ -50,8 +48,7 @@ class ShipmentService:
         shipment_log = ShipmentLog(
             shipment_id=shipment.shipment_id,
             scrape_status=shipment.scrape_status,
-            scraped_at=get_current_datetime_in_est(),
-            previous_data=previous_data,
+            scraped_at=shipment.last_scraped_time,
             new_data=new_data
         )
         self.shipment_log_repo.save(shipment_log)
@@ -67,10 +64,6 @@ class ShipmentService:
             logger_instance = get_logger()  # Fetch the logger instance
             shipment.run_id = logger_instance.run_id
 
-            # # After storing previous data
-            # previous_data = self.get_model_data(shipment)
-            # logger.debug(f"Previous data for shipment {shipment.shipment_id}: {previous_data}")
-
             # Apply any business rules
             for rule in rules:
                 rule.apply(context)
@@ -82,8 +75,14 @@ class ShipmentService:
                 logger.info(
                     f"Setting shipment ID {shipment.shipment_id} to ACTIVE after successful processing")
             
-            new_data = self.get_model_data(shipment)
-            logger.debug(f"New data for shipment {shipment.shipment_id}: {new_data}")
+            if container_availability:
+                new_data = self.make_json_serializable({
+                    'shipment': self.make_json_serializable(shipment),
+                    'container_availability': self.make_json_serializable(container_availability)
+                })
+            else:
+                new_data = self.make_json_serializable(shipment),
+            logger.info(f"New data for shipment {shipment.shipment_id}: {new_data}")
 
             # Save the updated shipment status
             self.shipment_repo.save_or_update(
@@ -123,9 +122,6 @@ class ShipmentService:
         new_data = None
 
         try:
-            # Capture previous data
-            # previous_data = self.get_model_data(shipment)
-            # logger.debug(f"Previous data for shipment {shipment.shipment_id}: {previous_data}")
 
             rules.append(SetInProgressStatusRule())
 
@@ -161,9 +157,6 @@ class ShipmentService:
         new_data = None
 
         try:
-            # Capture previous data
-            # previous_data = self.get_model_data(shipment)
-            # logger.debug(f"Previous data for shipment {shipment.shipment_id}: {previous_data}")
 
             rules.append(SetFailedStatusRule())
 
@@ -210,8 +203,15 @@ class ShipmentService:
 
             # Set scrape status to ACTIVE
             shipment.scrape_status = ScrapeStatus.ACTIVE
-            new_data = self.get_model_data(shipment)
-            logger.debug(f"New data for shipment {shipment.shipment_id}: {new_data}")
+            
+            if container_availability:
+                new_data = self.make_json_serializable({
+                    'shipment': self.make_json_serializable(shipment),
+                    'container_availability': self.make_json_serializable(container_availability)
+                })
+            else:
+                new_data = self.make_json_serializable(shipment),
+            logger.info(f"New data for shipment {shipment.shipment_id}: {new_data}")
 
             # Save the updated shipment
             self.shipment_repo.save_or_update(
@@ -240,10 +240,6 @@ class ShipmentService:
         new_data = None
 
         try:
-            # Capture previous data
-            # previous_data = self.get_model_data(shipment)
-            # logger.debug(f"Previous data for shipment {shipment.shipment_id}: {previous_data}")
-
             # Set scrape status to STOPPED
             shipment.scrape_status = ScrapeStatus.STOPPED
             new_data = self.get_model_data(shipment)
