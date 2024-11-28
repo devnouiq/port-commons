@@ -9,7 +9,6 @@ from ..rules.catalog.set_status_in_progress_rule import SetInProgressStatusRule
 from commons.enums import ScrapeStatus
 from ..schemas.shipment_log import ShipmentLog
 import datetime
-from commons.utils.date import get_current_datetime_in_est
 from enum import Enum
 import uuid
 
@@ -44,7 +43,7 @@ class ShipmentService:
         else:
             return data
 
-    def create_shipment_log(self, shipment, previous_data, new_data):
+    def create_shipment_log(self, shipment, new_data):
         shipment_log = ShipmentLog(
             shipment_id=shipment.shipment_id,
             scrape_status=shipment.scrape_status,
@@ -56,7 +55,6 @@ class ShipmentService:
     def process(self, context: Dict[str, Any], rules: Optional[List[Any]] = []):
         shipment = context.get('shipment')
         container_availability = context.get('container_availability')
-        previous_data = None
         new_data = None
 
         try:
@@ -89,7 +87,7 @@ class ShipmentService:
                 shipment, "shipment_id", shipment.shipment_id)
 
             # Create ShipmentLog entry
-            self.create_shipment_log(shipment, previous_data, new_data)
+            self.create_shipment_log(shipment, new_data)
 
             logger.info(f"Setting shipment ID {shipment.shipment_id} logs")
 
@@ -110,7 +108,7 @@ class ShipmentService:
             new_data = self.get_model_data(shipment)
 
             # Create ShipmentLog entry
-            self.create_shipment_log(shipment, previous_data, new_data)
+            self.create_shipment_log(shipment, new_data)
             raise
 
     def process_in_progress(self, context: Dict[str, Any], rules: Optional[List[Any]] = []):
@@ -118,7 +116,6 @@ class ShipmentService:
         Mark a shipment as 'IN_PROGRESS' and apply any associated rules.
         """
         shipment = context.get('shipment')
-        previous_data = None
         new_data = None
 
         try:
@@ -140,7 +137,7 @@ class ShipmentService:
                 shipment, "shipment_id", shipment.shipment_id)
 
             # Create ShipmentLog entry
-            self.create_shipment_log(shipment, previous_data, new_data)
+            self.create_shipment_log(shipment, new_data)
 
         except Exception as e:
             logger.error(
@@ -153,7 +150,6 @@ class ShipmentService:
         Mark a shipment as 'FAILED' and apply any associated rules.
         """
         shipment = context.get('shipment')
-        previous_data = None
         new_data = None
 
         try:
@@ -174,7 +170,7 @@ class ShipmentService:
                 shipment, "shipment_id", shipment.shipment_id)
 
             # Create ShipmentLog entry
-            self.create_shipment_log(shipment, previous_data, new_data)
+            self.create_shipment_log(shipment, new_data)
 
         except Exception as e:
             logger.error(
@@ -187,13 +183,9 @@ class ShipmentService:
         """
         shipment = context.get('shipment')
         container_availability = context.get('container_availability')
-        previous_data = None
         new_data = None
 
         try:
-            # Capture previous data
-            # previous_data = self.get_model_data(shipment)
-            # logger.debug(f"Previous data for shipment {shipment.shipment_id}: {previous_data}")
 
             rules.append(SetActiveStatusRule())
 
@@ -224,7 +216,7 @@ class ShipmentService:
                     container_availability, "container_number", container_availability.container_number)
 
             # Create ShipmentLog entry
-            self.create_shipment_log(shipment, previous_data, new_data)
+            self.create_shipment_log(shipment, new_data)
 
         except Exception as e:
             logger.error(
@@ -236,7 +228,6 @@ class ShipmentService:
         Process a shipment marked as 'STOPPED'. This method can be extended with custom logic.
         """
         shipment = context.get('shipment')
-        previous_data = None
         new_data = None
 
         try:
@@ -250,7 +241,7 @@ class ShipmentService:
                 shipment, "shipment_id", shipment.shipment_id)
             
             # Create ShipmentLog entry
-            self.create_shipment_log(shipment, previous_data, new_data)
+            self.create_shipment_log(shipment, new_data)
 
             logger.info(f"Processed stopped shipment ID {shipment.shipment_id}")
 
