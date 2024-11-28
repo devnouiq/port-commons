@@ -43,13 +43,13 @@ class ShipmentService:
         else:
             return data
 
-    def create_shipment_log(self, shipment, container_availability):
+    def create_shipment_log(self, shipment, container_availability=None):
         new_data = {}
 
-        new_data['shipment'] = self.make_json_serializable(shipment)
+        new_data['shipment'] = self.get_model_data(shipment)
 
         if container_availability:
-            new_data['container_availability'] = self.make_json_serializable(container_availability)
+            new_data['container_availability'] = self.get_model_data(container_availability)
 
         shipment_log = ShipmentLog(
             shipment_id=shipment.shipment_id,
