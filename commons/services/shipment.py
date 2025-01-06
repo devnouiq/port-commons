@@ -102,7 +102,7 @@ class ShipmentService:
             self.shipment_repo.save_or_update(
                 shipment, "shipment_id", shipment.shipment_id)
             # Create ShipmentLog entry
-            self.create_shipment_log(shipment, container_availability)
+            # self.create_shipment_log(shipment, container_availability)
             raise
 
     def process_in_progress(self, context: Dict[str, Any], rules: Optional[List[Any]] = []):
@@ -155,7 +155,7 @@ class ShipmentService:
             self.shipment_repo.save_or_update(
                 shipment, "shipment_id", shipment.shipment_id)
             # Create ShipmentLog entry
-            self.create_shipment_log(shipment)
+            # self.create_shipment_log(shipment)
         except Exception as e:
             logger.error(
                 f"Error processing failed shipment ID {shipment.shipment_id}: {str(e)}")
@@ -180,7 +180,7 @@ class ShipmentService:
             shipment.scrape_status = ScrapeStatus.ACTIVE
 
             # Create ShipmentLog entry
-            self.create_shipment_log(shipment, container_availability)
+            # self.create_shipment_log(shipment, container_availability)
 
             # Save the updated shipment
             self.shipment_repo.save_or_update(
@@ -212,7 +212,7 @@ class ShipmentService:
                 shipment, "shipment_id", shipment.shipment_id)
 
             # Create ShipmentLog entry
-            self.create_shipment_log(shipment)
+            # self.create_shipment_log(shipment)
 
             logger.info(
                 f"Processed stopped shipment ID {shipment.shipment_id}")
