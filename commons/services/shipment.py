@@ -15,6 +15,7 @@ import uuid
 
 logger = get_logger()
 
+
 class ShipmentService:
     def __init__(self, session: Session, shipment_repo: BaseRepository, container_repo: Optional[BaseRepository] = None, shipment_log_repo: Optional[BaseRepository] = None):
         self.session = session
@@ -26,7 +27,7 @@ class ShipmentService:
         data = {k: v for k, v in model.__dict__.items() if not k.startswith('_')}
         json_data = self.make_json_serializable(data)
         return json_data
-    
+
     def make_json_serializable(self, data):
         if isinstance(data, dict):
             return {k: self.make_json_serializable(v) for k, v in data.items()}
@@ -49,7 +50,8 @@ class ShipmentService:
         new_data['shipment'] = self.get_model_data(shipment)
 
         if container_availability:
-            new_data['container_availability'] = self.get_model_data(container_availability)
+            new_data['container_availability'] = self.get_model_data(
+                container_availability)
 
         shipment_log = ShipmentLog(
             shipment_id=shipment.shipment_id,
@@ -59,7 +61,6 @@ class ShipmentService:
         )
 
         self.shipment_log_repo.save(shipment_log)
-
 
     def process(self, context: Dict[str, Any], rules: Optional[List[Any]] = []):
         shipment = context.get('shipment')
@@ -80,9 +81,9 @@ class ShipmentService:
                 shipment.scrape_status = ScrapeStatus.ACTIVE
                 logger.info(
                     f"Setting shipment ID {shipment.shipment_id} to ACTIVE after successful processing")
-            
+
             # Create ShipmentLog entry
-            self.create_shipment_log(shipment, container_availability)
+            # self.create_shipment_log(shipment, container_availability)
 
             # Save the updated shipment status
             self.shipment_repo.save_or_update(
@@ -126,13 +127,12 @@ class ShipmentService:
                 shipment, "shipment_id", shipment.shipment_id)
 
             # Create ShipmentLog entry
-            self.create_shipment_log(shipment)
+            # self.create_shipment_log(shipment)
 
         except Exception as e:
             logger.error(
                 f"Error processing in-progress shipment ID {shipment.shipment_id}: {str(e)}")
             raise
-
 
     def process_failed(self, context: Dict[str, Any], rules: Optional[List[Any]] = []):
         """
@@ -178,7 +178,7 @@ class ShipmentService:
 
             # Set scrape status to ACTIVE
             shipment.scrape_status = ScrapeStatus.ACTIVE
-            
+
             # Create ShipmentLog entry
             self.create_shipment_log(shipment, container_availability)
 
@@ -191,7 +191,7 @@ class ShipmentService:
                 container_availability.shipment_id = shipment.shipment_id
                 self.container_repo.save_or_update(
                     container_availability, "container_number", container_availability.container_number)
-            
+
         except Exception as e:
             logger.error(
                 f"Error processing active shipment ID {shipment.shipment_id}: {str(e)}")
@@ -210,11 +210,12 @@ class ShipmentService:
             # Save the updated shipment
             self.shipment_repo.save_or_update(
                 shipment, "shipment_id", shipment.shipment_id)
-            
+
             # Create ShipmentLog entry
             self.create_shipment_log(shipment)
 
-            logger.info(f"Processed stopped shipment ID {shipment.shipment_id}")
+            logger.info(
+                f"Processed stopped shipment ID {shipment.shipment_id}")
 
         except Exception as e:
             logger.error(
