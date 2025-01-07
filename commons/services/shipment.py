@@ -213,6 +213,7 @@ class ShipmentService:
 
             # Create ShipmentLog entry
             # self.create_shipment_log(shipment)
+            
 
             logger.info(
                 f"Processed stopped shipment ID {shipment.shipment_id}")
